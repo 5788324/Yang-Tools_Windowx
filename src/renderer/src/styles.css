@@ -1,0 +1,303 @@
+:root {
+  color: #20242a;
+  background: #f5f6f8;
+  font-family:
+    Inter, "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 860px;
+  min-height: 560px;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: 244px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 24px 18px;
+  border-right: 1px solid #dde1e7;
+  background: #eef1f4;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: #fff;
+  background: #111827;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.brand h1,
+.topbar h2 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.brand h1 {
+  font-size: 21px;
+}
+
+.brand p,
+.topbar p {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.nav {
+  display: grid;
+  gap: 6px;
+}
+
+.nav-item {
+  height: 38px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 7px;
+  color: #374151;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nav-item.active,
+.nav-item:hover {
+  background: #ffffff;
+}
+
+.build {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.content {
+  min-width: 0;
+  padding: 26px 30px 32px;
+  overflow: hidden;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.topbar h2 {
+  font-size: 25px;
+}
+
+.status {
+  min-width: 72px;
+  padding: 6px 10px;
+  border: 1px solid #b7e2c1;
+  border-radius: 999px;
+  color: #176b35;
+  background: #eaf8ee;
+  text-align: center;
+  font-size: 12px;
+}
+
+.status.loading {
+  border-color: #f1d28b;
+  color: #8a5a00;
+  background: #fff7df;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 24px 0 18px;
+}
+
+.stat {
+  padding: 16px;
+  border: 1px solid #e2e6ec;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.stat span {
+  display: block;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.stat strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 28px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.toolbar input {
+  flex: 1;
+  height: 38px;
+  min-width: 0;
+  padding: 0 12px;
+  border: 1px solid #d6dbe3;
+  border-radius: 7px;
+  outline: none;
+  background: #fff;
+}
+
+.toolbar input:focus {
+  border-color: #3383d8;
+}
+
+.segmented {
+  display: flex;
+  padding: 3px;
+  border: 1px solid #d6dbe3;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.segmented button {
+  height: 30px;
+  min-width: 64px;
+  border: 0;
+  border-radius: 6px;
+  color: #4b5563;
+  background: transparent;
+  cursor: pointer;
+}
+
+.segmented button.selected {
+  color: #111827;
+  background: #e8eef7;
+}
+
+.plugin-list {
+  display: grid;
+  gap: 8px;
+  max-height: calc(100vh - 260px);
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.plugin-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 90px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e2e6ec;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.plugin-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  color: #f9fafb;
+  background: #256f83;
+  font-weight: 800;
+}
+
+.plugin-main {
+  min-width: 0;
+}
+
+.plugin-title {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.plugin-title strong,
+.plugin-main p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plugin-title strong {
+  display: block;
+  max-width: 70%;
+}
+
+.plugin-title span {
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #4b5563;
+  background: #eef1f5;
+  font-size: 12px;
+}
+
+.plugin-main p {
+  margin: 4px 0 8px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tags span {
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #4b5563;
+  background: #f2f4f7;
+  font-size: 11px;
+}
+
+.plugin-meta {
+  display: grid;
+  gap: 4px;
+  color: #6b7280;
+  text-align: right;
+  font-size: 12px;
+}
+
+.error {
+  padding: 10px 12px;
+  border: 1px solid #ffc8c8;
+  border-radius: 7px;
+  color: #9d1c1c;
+  background: #fff1f1;
+}

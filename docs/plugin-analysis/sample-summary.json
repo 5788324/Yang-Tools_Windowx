@@ -1,0 +1,3029 @@
+{
+  "generatedAt": "2026-05-24T10:02:14.343Z",
+  "ztools": [
+    {
+      "main": "index.html",
+      "logo": "logo.png",
+      "pluginSetting": {
+        "single": false
+      },
+      "features": [
+        {
+          "code": "calc",
+          "explain": "像打草稿一样计算",
+          "cmds": [
+            "计算稿纸",
+            {
+              "type": "regex",
+              "match": "/^[+-]?(?:\\d{1,15}|\\d{1,3}(?:,\\d\\d\\d){1,4})(?:\\.\\d{1,15})?$/",
+              "label": "计算稿纸"
+            }
+          ]
+        },
+        {
+          "code": "expression",
+          "explain": "表达式计算",
+          "mainPush": true,
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^\\(*[+-]?(?:\\d{1,15}|\\d{1,3}(?:,\\d\\d\\d){1,4})(?:\\.\\d{1,15})?%?\\)*(?:\\s*[+*/^%-]\\s*\\(*[+-]?(?:\\d{1,15}|\\d{1,3}(?:,\\d\\d\\d){1,4})(?:\\.\\d{1,15})?%?\\)*)+$/",
+              "label": "计算"
+            }
+          ]
+        },
+        {
+          "code": "sum",
+          "explain": "一串数字求和",
+          "mainPush": true,
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^\\s*(?:(?:\\d{1,15}|\\d{1,3}(?:,\\d\\d\\d){1,4})(?:\\.\\d{1,15})?\\s+)+(?:\\d{1,15}|\\d{1,3}(?:,\\d\\d\\d){1,4})(?:\\.\\d{1,15})?\\s*$/",
+              "label": "求和"
+            }
+          ]
+        },
+        {
+          "code": "average",
+          "explain": "一串数字求平均值",
+          "mainPush": true,
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^\\s*(?:(?:\\d{1,15}|\\d{1,3}(?:,\\d\\d\\d){1,4})(?:\\.\\d{1,15})?\\s+)+(?:\\d{1,15}|\\d{1,3}(?:,\\d\\d\\d){1,4})(?:\\.\\d{1,15})?\\s*$/",
+              "label": "求平均值"
+            }
+          ]
+        }
+      ],
+      "name": "calculation-paper",
+      "pluginName": "计算稿纸",
+      "description": "像打草稿一样计算",
+      "author": "福州猿力信息科技有限公司",
+      "homepage": "https://u.tools",
+      "version": "1.4.2",
+      "title": "计算稿纸"
+    },
+    {
+      "name": "clipboard",
+      "description": "剪贴板",
+      "version": "1.2.6",
+      "main": "index.html",
+      "preload": "preload.js",
+      "logo": "logo.png",
+      "development": {
+        "main": "http://localhost:5178/"
+      },
+      "features": [
+        {
+          "code": "clipboard",
+          "explain": "剪贴板",
+          "cmds": [
+            "剪贴板"
+          ]
+        }
+      ],
+      "tools": {
+        "search_history": {
+          "description": "搜索剪贴板历史记录，可返回文本、图片或文件。",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "query": {
+                "type": "string",
+                "description": "搜索关键词，可匹配文本内容或文件名；不提供或为空时返回最近的历史记录"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text",
+                  "image",
+                  "files",
+                  "all"
+                ],
+                "default": "all",
+                "description": "返回的内容类型"
+              },
+              "limit": {
+                "type": "integer",
+                "description": "返回最大数量",
+                "minimum": 1,
+                "maximum": 100,
+                "default": 10
+              }
+            }
+          },
+          "outputSchema": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "description": "匹配到的剪贴板历史记录",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "记录的唯一标识"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "text",
+                        "image",
+                        "files"
+                      ],
+                      "description": "剪贴板内容类型"
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "文本内容（仅 text 类型存在）"
+                    },
+                    "image": {
+                      "type": "string",
+                      "description": "复制图片或截图保存后的本地图片文件绝对路径（仅 image 类型存在）"
+                    },
+                    "files": {
+                      "type": "array",
+                      "description": "复制的文件或文件夹（仅 files 类型存在）",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "文件或文件夹名称"
+                          },
+                          "path": {
+                            "type": "string",
+                            "description": "本地文件或文件夹路径"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "file",
+                              "folder"
+                            ],
+                            "description": "文件类型"
+                          },
+                          "exist": {
+                            "type": "boolean",
+                            "description": "文件或文件夹当前是否仍存在"
+                          }
+                        }
+                      }
+                    },
+                    "timestamp": {
+                      "type": "number",
+                      "description": "复制时间（Unix 毫秒时间戳）"
+                    },
+                    "truncated": {
+                      "type": "boolean",
+                      "description": "text 内容或 files 列表是否因长度限制被截断"
+                    },
+                    "size": {
+                      "type": "number",
+                      "description": "内容大小：text 为字符数，image 为图片字节大小，files 为文件或文件夹数量"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type",
+                    "timestamp"
+                  ]
+                }
+              },
+              "total": {
+                "type": "number",
+                "description": "匹配到的总数量"
+              }
+            },
+            "required": [
+              "items",
+              "total"
+            ]
+          }
+        }
+      },
+      "title": "剪贴板"
+    },
+    {
+      "main": "index.html",
+      "logo": "logo.png",
+      "preload": "preload/index.js",
+      "features": [
+        {
+          "code": "keyword",
+          "label": "易翻翻译",
+          "explain": "可能是uTools上第2好用的翻译插件，支持多种语言互翻和朗读",
+          "cmds": [
+            "ef(易翻翻译)"
+          ]
+        },
+        {
+          "code": "anyword__fanyi",
+          "label": "易翻翻译",
+          "explain": "翻译文本：用于快速翻译复制的文本, 也可结合全局快捷键使用",
+          "cmds": [
+            "翻译",
+            {
+              "type": "over",
+              "label": "翻译"
+            },
+            "fjyi",
+            {
+              "type": "over",
+              "label": "fjyi"
+            }
+          ]
+        },
+        {
+          "code": "translateImg",
+          "explain": "将图片中的内容翻译为中文",
+          "cmds": [
+            "图片翻译",
+            "截图并翻译",
+            {
+              "type": "img",
+              "label": "图片翻译"
+            }
+          ]
+        },
+        {
+          "code": "codeMode__setting",
+          "label": "易翻翻译",
+          "explain": "命名模式设置",
+          "cmds": [
+            "mmsz(命名设置)"
+          ]
+        }
+      ],
+      "platform": [
+        "darwin",
+        "win32",
+        "linux"
+      ],
+      "name": "easy-translate",
+      "pluginName": "易翻翻译",
+      "description": "支持多种翻译服务(谷歌|有道|百度|DeepL|DeepLX|彩云|小牛|腾讯交互|火山|腾讯云|阿里云)；支持程序员常用的变量命名 (函数命名) 模式；图片翻译；拥有极具表现力的原文、译文发音朗读；支持备份插件设置；ef",
+      "author": "Lainbo & Milo",
+      "homepage": "https://flowus.cn/4739fa73-4333-475b-a1e9-d6287eda3b26#0d2cc1c1-c6d3-4e3c-9c40-46cecb97c02a",
+      "version": "2.22.2",
+      "title": "易翻翻译"
+    },
+    {
+      "$schema": "node_modules/@ztools-center/ztools-api-types/resource/ztools.schema.json",
+      "name": "file-renamer",
+      "title": "文件批量重命名",
+      "description": "批量文件重命名工具，支持多种重命名规则，包括替换、前缀/后缀、大小写转换、序列号、模板、时间戳等",
+      "author": "nichijoux",
+      "version": "1.0.2",
+      "main": "index.html",
+      "preload": "preload/services.js",
+      "logo": "logo.svg",
+      "features": [
+        {
+          "code": "rename",
+          "explain": "批量重命名文件，支持多种重命名规则",
+          "icon": "logo.svg",
+          "cmds": [
+            "重命名文件",
+            "批量重命名",
+            {
+              "type": "files",
+              "fileType": "file",
+              "maxLength": 100,
+              "label": "批量重命名"
+            }
+          ]
+        }
+      ],
+      "platform": [
+        "darwin",
+        "win32",
+        "linux"
+      ]
+    },
+    {
+      "name": "shortcut-capture",
+      "title": "截图",
+      "description": "截图、标注和保存截图",
+      "version": "1.0.0",
+      "author": "zing",
+      "platform": [
+        "darwin",
+        "win32"
+      ],
+      "main": "index.html",
+      "logo": "logo.png",
+      "preload": "preload.js",
+      "development": {
+        "main": "http://localhost:5180/"
+      },
+      "features": [
+        {
+          "code": "shortcut-capture",
+          "explain": "截图",
+          "cmds": [
+            "shortcutCapture",
+            "sc",
+            "截屏",
+            "截图"
+          ]
+        },
+        {
+          "code": "shortcut-capture-copy",
+          "explain": "截图并复制",
+          "cmds": [
+            "截图并复制",
+            "scc"
+          ]
+        },
+        {
+          "code": "shortcut-capture-save",
+          "explain": "截图并保存",
+          "cmds": [
+            "截图并保存",
+            "scs"
+          ]
+        },
+        {
+          "code": "shortcut-capture-image",
+          "explain": "打开图片到截图",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "截图"
+            },
+            {
+              "type": "regex",
+              "label": "base64 图片",
+              "match": "/^data:image\\/(bmp|gif|heic|jpeg|jpg|png|svg\\+xml|webp|x-icon);base64,/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "pluginName": "网址精灵",
+      "version": "2.1.11",
+      "description": "一键收藏、搜索web网页，打造个人网站网址导航站、书签导入、网页快开神器！",
+      "author": "呀唔咪",
+      "homepage": null,
+      "main": "index.html",
+      "preload": "preload.js",
+      "logo": "logo.png",
+      "pluginSetting": {
+        "height": 1
+      },
+      "features": [
+        {
+          "code": "goodweb",
+          "explain": "一键收藏网页、打造个人网址导航站、网页快开神器！",
+          "icon": "logo.png",
+          "cmds": [
+            "网址精灵",
+            "网址导航",
+            "网页收藏",
+            "web"
+          ]
+        },
+        {
+          "code": "searchweb",
+          "explain": "在网址精灵中搜索网址卡片！",
+          "icon": "search.png",
+          "cmds": [
+            {
+              "type": "over",
+              "label": "搜索网址卡片",
+              "minLength": 2,
+              "maxLength": 20
+            }
+          ],
+          "mainPush": true
+        },
+        {
+          "code": "addweb",
+          "explain": "一键快速添加网址卡片！",
+          "icon": "logo.png",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "添加网址卡片",
+              "match": "/^(http|https|ftp|chrome|edge|mailto|file|data|ws|wss|irc|git|svn|utools):///"
+            }
+          ]
+        }
+      ],
+      "platform": [
+        "darwin",
+        "win32",
+        "linux"
+      ],
+      "name": "url-wizard",
+      "title": "网址精灵"
+    }
+  ],
+  "utools": [
+    {
+      "name": "pdfconverter",
+      "pluginName": "PDF 处理",
+      "logo": "du6lcdssckipbshi4y5otw02oekzcd76.png",
+      "features": [
+        {
+          "code": "pdf-merge",
+          "explain": "PDF 压缩、PDF 合并、PDF 拆分、PDF 签名、PDF 提取图片、PDF 转图片、PDF 转 Word、PDF 转 PPT、PDF 转 Excel",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "extensions": [
+                "pdf"
+              ],
+              "label": "PDF 处理"
+            }
+          ]
+        },
+        {
+          "code": "pdf-convert",
+          "explain": "将 PDF 转为 Word、PPT、Excel、图片",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "extensions": [
+                "pdf"
+              ],
+              "label": "PDF 格式转换"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "aihub",
+      "pluginName": "AI 助手",
+      "logo": "a9lp5hue9sfwoebjdf8ugaxqvncnvoqp.png",
+      "features": [
+        {
+          "code": "ai",
+          "explain": "多模型 AI 对话，可自定义，助你解锁更强智能力。",
+          "cmds": [
+            {
+              "type": "over",
+              "label": "问 AI",
+              "minLength": 2,
+              "maxLength": 10000
+            }
+          ]
+        },
+        {
+          "code": "translate",
+          "explain": "AI 模型翻译",
+          "cmds": [
+            {
+              "type": "over",
+              "label": "AI 翻译",
+              "minLength": 1,
+              "maxLength": 10000
+            }
+          ]
+        },
+        {
+          "code": "multi-ai",
+          "explain": "同时与多个 AI 模型对话，对比不同 AI 模型的回答",
+          "cmds": [
+            {
+              "type": "over",
+              "label": "AI 一问多答",
+              "minLength": 2,
+              "maxLength": 10000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zypiuj0v",
+      "pluginName": "图片批量处理",
+      "logo": "parucg2glabouubycimlfb6rizpik1in.png",
+      "features": [
+        {
+          "code": "pics",
+          "explain": "图片压缩、格式转换、修改尺寸、添加水印、添加圆角、添加边框、补边留白、裁剪、旋转、翻转、合并为图片、合并为 PDF、合并为动图、手动裁剪",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "extensions": [
+                "jpg",
+                "jpeg",
+                "png",
+                "svg",
+                "webp",
+                "tiff",
+                "avif",
+                "heic",
+                "bmp",
+                "gif",
+                "ico"
+              ],
+              "label": "图片批量处理"
+            },
+            {
+              "type": "img",
+              "label": "图片批量处理"
+            }
+          ]
+        },
+        {
+          "code": "read-dir",
+          "explain": "读取文件夹内所有图片进行批量处理",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "directory",
+              "maxLength": 1,
+              "label": "读取文件夹内所有图片"
+            }
+          ]
+        },
+        {
+          "code": "free-crop",
+          "explain": "图片批量手动裁剪",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "extensions": [
+                "jpg",
+                "jpeg",
+                "png",
+                "webp",
+                "tiff",
+                "avif",
+                "heic",
+                "bmp",
+                "ico"
+              ],
+              "label": "手动裁剪"
+            },
+            {
+              "type": "img",
+              "label": "手动裁剪"
+            }
+          ]
+        },
+        {
+          "code": "merge",
+          "explain": "将多张图片合并为一张图片",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "minLength": 2,
+              "extensions": [
+                "jpg",
+                "jpeg",
+                "png",
+                "svg",
+                "webp",
+                "tiff",
+                "avif",
+                "heic",
+                "bmp"
+              ],
+              "label": "合并为图片"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zfc4py1y",
+      "pluginName": "AI 图像处理",
+      "logo": "n5xxrvnhy66djl2x8mxfv89bggnu4abq.png",
+      "features": [
+        {
+          "code": "img",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "AI 图像处理"
+            }
+          ]
+        },
+        {
+          "code": "segment",
+          "explain": "图片去背景",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "extensions": [
+                "png",
+                "jpg",
+                "jpeg",
+                "webp",
+                "bmp",
+                "tiff"
+              ],
+              "label": "图片去背景",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        },
+        {
+          "code": "watermark",
+          "explain": "图片擦除",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "extensions": [
+                "png",
+                "jpg",
+                "jpeg",
+                "webp",
+                "bmp",
+                "tiff"
+              ],
+              "label": "图片擦除",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        },
+        {
+          "code": "scale",
+          "explain": "图片无损放大",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "extensions": [
+                "png",
+                "jpg",
+                "jpeg",
+                "webp",
+                "bmp",
+                "tiff"
+              ],
+              "label": "图片无损放大",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "clipboard",
+      "pluginName": "剪贴板",
+      "logo": "0tl4hnpwyfdfa1xrurh2dqgwbts0bkob.png",
+      "features": [
+        {
+          "code": "pindata",
+          "explain": "内容加固定到悬浮屏幕的临时中转站",
+          "cmds": [
+            {
+              "type": "over",
+              "label": "文本悬浮中转"
+            },
+            {
+              "type": "img",
+              "label": "图像悬浮中转"
+            },
+            {
+              "type": "files",
+              "label": "文件悬浮中转"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "everythingfind",
+      "pluginName": "本地搜索",
+      "platform": "win32",
+      "logo": "kwevhurq1tjlett1cvwiqlauvltsd30i.png",
+      "features": [
+        {
+          "code": "oversearch",
+          "explain": "本地文件搜索",
+          "cmds": [
+            {
+              "type": "over",
+              "maxLength": 40,
+              "exclude": "/[\\\\\\/\\t\\n]/",
+              "label": "文件搜索"
+            }
+          ]
+        },
+        {
+          "code": "folderfind",
+          "explain": "选中的文件夹内搜索",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "directory",
+              "maxLength": 1,
+              "label": "文件夹内搜索"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "todo",
+      "pluginName": "ToDo 待办",
+      "logo": "6ijaym4fav3gxmmmzanoymvorai82dvx.png",
+      "features": [
+        {
+          "code": "add",
+          "explain": "添加到待办",
+          "cmds": [
+            {
+              "type": "over",
+              "label": "添加到待办"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "rename",
+      "pluginName": "批量重命名",
+      "logo": "bqkhc8tv1comqwoqdtlybas3b73bftdo.png",
+      "features": [
+        {
+          "code": "rename",
+          "explain": "文件或文件夹批量重命名",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "批量重命名"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "notes",
+      "pluginName": "Markdown 笔记",
+      "logo": "2s3dzpqhhlk7hecoyes3nzokqigg1qn0.png",
+      "features": [
+        {
+          "code": "import",
+          "explain": "将 md 文件导入为 Markdown 笔记",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "extensions": [
+                "md"
+              ],
+              "label": "导入 Markdown 笔记"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zwr5yoxz",
+      "pluginName": "万物皆可对比",
+      "logo": "oxq7iyl50hvq4ysrr4gapdglympp31ga.png",
+      "features": [
+        {
+          "code": "image",
+          "explain": "支持文本、图像、docx、excel、pdf、pptx、物品参数等差异对比",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "万物皆可对比-image",
+              "fileType": "file",
+              "match": "/.(?:bmp|gif|heic|jpeg|jpg|jpe|png|svg|webp|ico)$/i",
+              "minLength": 1
+            }
+          ]
+        },
+        {
+          "code": "img",
+          "explain": "支持文本、图像、docx、excel、pdf、pptx、物品参数等差异对比",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "万物皆可对比-img",
+              "fileType": "file",
+              "match": "/.(?:bmp|gif|heic|jpeg|jpg|jpe|png|svg|webp|ico)$/i",
+              "minLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z9alv7pt",
+      "pluginName": "轻快标图",
+      "logo": "lakxj2hasi0k4ejw3agrtpvzmtqni05v.png",
+      "features": [
+        {
+          "code": "marker",
+          "explain": "轻量、丰富、便捷、美观的图片标注工具",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "轻快标图",
+              "fileType": "file",
+              "match": "/\\.(jpe?g|png|gif|webp|svg)$/i",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            {
+              "type": "img",
+              "label": "图片标注"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zdblnfxa",
+      "pluginName": "视频批量处理",
+      "logo": "og4fsvpsqsfx6nhtlh1ne45o0zdwpziy.png",
+      "features": [
+        {
+          "code": "video-processing",
+          "explain": "视频压缩、时长裁剪、画面裁剪、格式转换、转为动图、添加水印、修改尺寸、视频封面、视频加速、视频翻转、视频旋转、视频合并、音频处理、帧提取",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "extensions": [
+                "mp4",
+                "webm",
+                "avi",
+                "flv",
+                "mkv",
+                "mov",
+                "wmv"
+              ],
+              "label": "视频批量处理"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zmzz4ddk",
+      "pluginName": "SVG编辑器",
+      "logo": "r2wvs4uvgekjqik6buam5xvwkhym3xu7.png",
+      "features": [
+        {
+          "code": "svg-edit",
+          "explain": "编辑SVG文件",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "编辑SVG文件",
+              "fileType": "file",
+              "match": "/\\.svg$/i",
+              "minLength": 1,
+              "maxLength": 1
+            },
+            {
+              "type": "regex",
+              "label": "编辑SVG文件",
+              "match": "/\\.svg$/i",
+              "minLength": 1,
+              "maxLength": 1
+            },
+            {
+              "type": "regex",
+              "label": "编辑SVG文件",
+              "match": "/^<svg/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zkkbfry6",
+      "pluginName": "兔灵截图工具",
+      "logo": "byy5vwwc9farq7sql5sxxcewq2rwkpre.png",
+      "features": [
+        {
+          "code": "screenshot.autoSizeFile?sceneCode=default",
+          "explain": "屏幕适配图片大小编辑",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "适配图片编辑",
+              "fileType": "file",
+              "match": "/.(?:bmp|gif|heic|jpeg|jpg|jpe|png|svg|webp|ico)$/i",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        },
+        {
+          "code": "screenshot.base64?sceneCode=default",
+          "explain": "图片编辑",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "图片编辑"
+            }
+          ]
+        },
+        {
+          "code": "ui.router",
+          "explain": "动态跳转路由插件内部使用",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "打开插件页面",
+              "match": "/^#ui.router.*/i",
+              "minLength": 6,
+              "maxLength": 1000
+            }
+          ]
+        },
+        {
+          "code": "ui.account.bind",
+          "explain": "账号绑定",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "账号绑定",
+              "match": "/^#account.bind.*/i",
+              "minLength": 6,
+              "maxLength": 1000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zzdiqhj1",
+      "pluginName": "音频剪辑",
+      "logo": "alhijmrwstprwt6qc69jtts22xdu7z8j.png",
+      "features": [
+        {
+          "code": "audio-process",
+          "explain": "处理音频",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "处理音频",
+              "fileType": "file",
+              "match": "/.(?:mp3|m4a|m4r|flac|wav|ogg|oga|aiff|aif|wma|mka|aac)$/i",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "jsoneditor",
+      "pluginName": "JSON 编辑器",
+      "logo": "9829832ee97d87a27ba83995fae70759.png",
+      "features": [
+        {
+          "code": "json",
+          "explain": "Json 格式化编辑",
+          "cmds": [
+            {
+              "type": "regex",
+              "minLength": 2,
+              "match": "/^\\s*(\\{[\\s\\S]*\\}|\\[[\\s\\S]*\\])\\s*$/",
+              "label": "Json"
+            },
+            {
+              "type": "files",
+              "fileType": "file",
+              "maxLength": 1,
+              "match": "/\\.json$/i",
+              "label": "Json"
+            }
+          ]
+        },
+        {
+          "code": "urlparams2json",
+          "explain": "URL Params 转 JSON",
+          "cmds": [
+            {
+              "type": "regex",
+              "minLength": 6,
+              "match": "/^(?:[^\\s=&]{1,40}=[^\\s=&]*&)+[^\\s=&]{1,40}=[^\\s=&]*$/",
+              "label": "URL Params 转 JSON"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "collection",
+      "pluginName": "备忘快贴",
+      "logo": "8cvgldxanrhbaf0jtdjwg3iq2muphmbj.png",
+      "features": [
+        {
+          "code": "collection",
+          "explain": "收藏常用「文本」「代码」「图片」，一键快速粘贴",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "extensions": [
+                "jpg",
+                "jpeg",
+                "png"
+              ],
+              "maxLength": 1,
+              "label": "添加至备忘"
+            },
+            {
+              "type": "img",
+              "label": "添加至备忘"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z3bc93ua",
+      "pluginName": "远程桌面管理(RemoteLI)",
+      "platform": "[\"win32\"]",
+      "logo": "e5glscgpogc0mf640r3inekmi3f5faus.png",
+      "features": [
+        {
+          "code": "direct",
+          "explain": "remote control quickly!",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "开启/新建远程",
+              "match": "/^\\s*((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)(:\\d{1,5})?(\\s+\\S+){0,2}\\s*$/",
+              "minLength": 1,
+              "maxLength": 50
+            }
+          ]
+        },
+        {
+          "code": "re",
+          "explain": "remote control quickly!",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "开启远程",
+              "match": "/^r.*/i",
+              "minLength": 2,
+              "maxLength": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zqyhs1vy",
+      "pluginName": "发票处理",
+      "logo": "atngusxhpu0cegrdhpbzqqciscgkee4p.png",
+      "features": [
+        {
+          "code": "merge",
+          "explain": "发票处理助手, 提供发票合并，发票信息统计, 发票重命名，发票划分文件夹等功能",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "extensions": [
+                "pdf"
+              ],
+              "label": "发票处理"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "calc",
+      "pluginName": "计算稿纸",
+      "logo": "snx5pkqmdkhw3erfijch9pkbgeoxmby5.png",
+      "features": [
+        {
+          "code": "calc",
+          "explain": "高效简洁的计算工具，实时计算、自动保存，像稿纸一样记录每一步过程",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^[+-]?(?:\\d{1,15}|\\d{1,3}(?:,\\d\\d\\d){1,4})(?:\\.\\d{1,15})?$/",
+              "label": "计算稿纸"
+            }
+          ]
+        },
+        {
+          "code": "expression",
+          "explain": "数学公式计算",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^[\\(（]*[+-]?(?:\\d{1,15}|\\d{1,3}(?:,\\d\\d\\d){1,4})(?:\\.\\d{1,15})?%?[\\)）]*(?:\\s*[+*Xx/^%-]\\s*[\\(（]*[+-]?(?:\\d{1,15}|\\d{1,3}(?:,\\d\\d\\d){1,4})(?:\\.\\d{1,15})?%?[\\)）]*)+$/",
+              "label": "计算"
+            }
+          ]
+        },
+        {
+          "code": "sum",
+          "explain": "一串数字求和",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^\\s*(?:[+-]?(?:\\d{1,15}|\\d{1,3}(?:,\\d\\d\\d){1,4})(?:\\.\\d{1,15})?\\s+)+[+-]?(?:\\d{1,15}|\\d{1,3}(?:,\\d\\d\\d){1,4})(?:\\.\\d{1,15})?\\s*$/",
+              "label": "求和"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zp1yhyde",
+      "pluginName": "OCR Pro",
+      "logo": "lnr1wjigr6ruckyoluyywb65ngdv95bv.png",
+      "features": [
+        {
+          "code": "ocr-files",
+          "explain": "文件OCR识别",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "文件识别",
+              "fileType": "file",
+              "extensions": [
+                "png",
+                "jpg",
+                "jpeg",
+                "gif",
+                "bmp",
+                "webp",
+                "tiff",
+                "svg",
+                "pdf"
+              ],
+              "minLength": 1,
+              "maxLength": 100
+            }
+          ]
+        },
+        {
+          "code": "ocr-clipboard",
+          "explain": "剪切板图片识别",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "图片识别"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ocr",
+      "pluginName": "OCR 文字识别",
+      "logo": "iy2klr0cfmi7h82k9i5t1gwf4j9s0wwb.png",
+      "features": [
+        {
+          "code": "ocr",
+          "explain": "提取文字 / 提取表格 / 提取公式",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "OCR 文字识别"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "colorHelper",
+      "pluginName": "颜色助手",
+      "logo": "nmzbwxn8uo4rvxjenddk9ymec4hpspqm.png",
+      "features": [
+        {
+          "code": "color",
+          "explain": "颜色",
+          "cmds": [
+            {
+              "type": "regex",
+              "maxLength": 50,
+              "match": "/^(?:#[a-f0-9]{3}|#?[a-f0-9]{6}|#[a-f0-9]{8});?$|^(?:(?:25[0-5]|2[0-4]\\d|1?\\d{1,2})(?:, *| +)){2}(?:25[0-5]|2[0-4]\\d|1?\\d{1,2})$|^rgba?\\((?:(?:25[0-5]|2[0-4]\\d|1?\\d{1,2})(?:, *| +)){2}(?:25[0-5]|2[0-4]\\d|1?\\d{1,2})|^hs[liv]a?\\((?:360|(?:(?:3[0-5]\\d|[1-2]\\d{2}|\\d{1,2})(?:\\.\\d{1,15})?))(?:deg)?(?:, *| +)(?:100|\\d{1,2}(?:\\.\\d{1,15})?)%?(?:, *| +)(?:100|\\d{1,2}(?:\\.\\d{1,15})?)%?/i",
+              "label": "颜色"
+            }
+          ]
+        },
+        {
+          "code": "image",
+          "explain": "图片颜色提取，可以生成色卡图片",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "图片色卡"
+            },
+            {
+              "type": "files",
+              "fileType": "file",
+              "match": "/\\.(?:jpg|jpeg|png)$/i",
+              "maxLength": 1,
+              "label": "图片色卡"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zwmg5zgf",
+      "pluginName": "增强文件夹",
+      "logo": "hageb3wkockwdayrs4pnkitksrcasdnf.png",
+      "features": [
+        {
+          "code": "open-with-folder",
+          "explain": "用增强文件夹打开选中的文件夹",
+          "cmds": [
+            {
+              "label": "用增强文件夹打开",
+              "type": "files",
+              "fileType": "directory",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zmlqvvjn",
+      "pluginName": "临时收集箱",
+      "logo": "32194adcb152cac42df03d8645cc3f08.png",
+      "features": [
+        {
+          "code": "quick",
+          "explain": "临时收集箱",
+          "platform": "[\"win32\",\"darwin\",\"linux\"]",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "快速保存",
+              "fileType": "file",
+              "minLength": 1
+            },
+            {
+              "type": "img",
+              "label": "图片保存"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zpktfrk3",
+      "pluginName": "Code Calc",
+      "logo": "egoopfltx9fmuvkvsvsafi5f0unnckrx.png",
+      "features": [
+        {
+          "code": "quickcalc",
+          "explain": "计算算式",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "快速计算",
+              "match": "/^\\s*(?:\\(*[+-]?(?:(?:\\d+(\\.\\d+)?[%‰]?)|π|pi|e)\\)* ?[+\\-*x/÷%^] ?)+\\(*[+-]?(?:(?:\\d+(\\.\\d+)?[%‰]?)|π|pi|e)\\)*$/"
+            },
+            {
+              "type": "regex",
+              "label": "进制转换",
+              "match": "/^\\s*[+-]?(?:0[bB][01]+|0[oO][0-7]+|0[xX][0-9A-Fa-f]+)\\s*$/"
+            },
+            {
+              "type": "regex",
+              "label": "Base64解码",
+              "match": "/^(?=(?:.*[A-Za-z]){3,})(?:[A-Za-z0-9+/]{4}){3,}(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/"
+            },
+            {
+              "type": "regex",
+              "label": "通用计算",
+              "match": "/^(?!.*[0-9\\uFF10-\\uFF19](?![xXbBoO])[a-zA-Z\\uFF21-\\uFF3A\\uFF41-\\uFF5A])[ -~π°‰\\uFF01-\\uFF5E]{1,}\\s*=$/"
+            }
+          ]
+        },
+        {
+          "code": "timestamp",
+          "explain": "计算时间戳",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "时间戳@YYYY-MM-DD HH:mm:ss",
+              "match": "/^\\s*(@)?\\d{4}[-|/]\\d{1,2}[-|/]\\d{1,2}\\s+\\d{1,2}:\\d{1,2}(?::\\d{1,2})?$/"
+            },
+            {
+              "type": "regex",
+              "label": "时间戳@YYYY-MM-DD",
+              "match": "/^\\s*(@)\\d{4}(?:[-|/]\\d{1,2}(?:[-|/]\\d{1,2})?)?$/"
+            },
+            {
+              "type": "regex",
+              "label": "时间戳",
+              "match": "/^\\s*(@)(now|today)$/"
+            }
+          ]
+        },
+        {
+          "code": "ts2date",
+          "explain": "时间戳转日期",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "时间戳转日期",
+              "match": "/^\\s*(#)(\\d{10,15})$/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zfvvfwru",
+      "pluginName": "汇率计算器",
+      "logo": "d8fb523a057db0285925b897f1ec4abc.png",
+      "features": [
+        {
+          "code": "huilv",
+          "explain": "汇率计算",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "汇率计算",
+              "match": "/^([1-9][\\d]{0,10}|0)(\\.[\\d]{1,20})?$/",
+              "minLength": 1,
+              "maxLength": 35
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a2478731",
+      "pluginName": "Ctool",
+      "logo": "962fe91e8888ef636c773e36e75ea3ed.png",
+      "features": [
+        {
+          "code": "ctool-unicode-decoder",
+          "explain": "Unicode - 解码",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/\\\\u[0-9a-f]{4}/i",
+              "minLength": 6,
+              "label": "Unicode - 解码"
+            }
+          ]
+        },
+        {
+          "code": "ctool-time-timestamp",
+          "explain": "时间日期 - 时间戳",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/(^\\d{5,}$)|(^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?$)/i",
+              "minLength": 5,
+              "maxLength": 25,
+              "label": "时间日期 - 时间戳"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "9a1d1d03",
+      "pluginName": "快捷命令",
+      "logo": "gztshe5ivxlxdn1jt5erbtkycceemydh.png",
+      "features": [
+        {
+          "code": "importcommand",
+          "explain": "导入快捷命令",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "导入命令",
+              "match": "/(^\\{[\\s\\S]*\"program\" *: *\".*\"[\\s\\S]*\"cmd\" *: *\".*\"[\\s\\S]*\\}$)|(^qc\\/(id|base64)\\/.+)/i",
+              "maxNum": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z7tpkm0x",
+      "pluginName": "Photor - 截图美化",
+      "logo": "493c71a26ae8ac1707630f8462f887d6.png",
+      "features": [
+        {
+          "code": "shot-beauty",
+          "explain": "Photor - 截图美化",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "Photor - 截图美化"
+            },
+            {
+              "type": "files",
+              "label": "Photor - 图片美化",
+              "fileType": "file",
+              "match": "/.(?:bmp|jpeg|jpg|jpe|png|webp)$/i",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zaaebqqs",
+      "pluginName": "网址精灵",
+      "logo": "51ei6tzpgkroqd8ml4uljtiwrbhjl5pa.png",
+      "features": [
+        {
+          "code": "addweb",
+          "explain": "一键快速添加网址卡片！",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "添加网址卡片",
+              "match": "/^(http|https|ftp|chrome|edge|mailto|file|data|ws|wss|irc|git|svn|utools):///"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zduhh6xh",
+      "pluginName": "ZotSeek 学术搜索助手",
+      "platform": "[\"win32\"]",
+      "logo": "lvybo2oqa7pledrvz9y0njgoviwlrszu.png",
+      "features": [
+        {
+          "code": "paper",
+          "explain": "输入论文标题、作者、年份或标识符或者直接用自然语言描述",
+          "platform": "[\"win32\",\"darwin\",\"linux\"]",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "识别DOI",
+              "match": "/10.\\d{4,9}/[-._;()/:A-Z0-9]+/i"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "znu6i6as",
+      "pluginName": "JSON Tools",
+      "logo": "2j9p9vjipytvcunzxyq0uqusggqffg04.png",
+      "features": [
+        {
+          "code": "json",
+          "explain": "json 工具箱",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "Json 格式化",
+              "match": "/^\\s*(\\{[\\s\\S]*\\}|\\[[\\s\\S]*\\])\\s*$/i",
+              "minLength": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zhiiz6ul",
+      "pluginName": "快拼图",
+      "logo": "9f17363e6ed6dc665d6323da501df6ce.png",
+      "features": [
+        {
+          "code": "images",
+          "explain": "快速拼接多张图片",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "快拼图",
+              "fileType": "file",
+              "match": "/.(?:bmp|gif|jpeg|jpg|png|svg|webp|ico)$/i",
+              "minLength": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zejxtgx5",
+      "pluginName": "Excalidraw离线白板",
+      "logo": "w7qec4qtz1n47d29puhkvqwqvdyaugxf.png",
+      "features": [
+        {
+          "code": "load-excalidraw-file",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "打开 excalidraw 文件",
+              "match": "/\\.excalidraw$/i"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zcne9mnz",
+      "pluginName": "兔灵图床 Plus",
+      "logo": "p5sidlldgqdsxbyyxvtfaojxc40vq2o8.png",
+      "features": [
+        {
+          "code": "upload.base64",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "图片上传"
+            }
+          ]
+        },
+        {
+          "code": "upload.file",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "图片上传",
+              "match": "/.*(jpg|png|jpeg|gif|webp)$/i",
+              "fileType": "file",
+              "minLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zcdycbq6",
+      "pluginName": "FileShare文件共享(局域网)",
+      "logo": "unsbhuckdfh80axzqj4n2atmwfyhmitm.png",
+      "features": [
+        {
+          "code": "FileShare",
+          "explain": "FileShare文件共享(局域网)",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "分享",
+              "fileType": "file",
+              "minLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z3jno9af",
+      "pluginName": "ChatGPT.好友",
+      "logo": "8itoj2ycxk4pz4yqbxpkqcnkjiekehwz.png",
+      "features": [
+        {
+          "code": "setKeyfromUrl",
+          "explain": "通过url方式一键添加私有API路线+KEY!",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "一键绑定令牌",
+              "match": "/(?=.*key)(?=.*url)/",
+              "minLength": 68
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "quickweb",
+      "pluginName": "网页快开",
+      "logo": "xbi8ffmw7c04a1gt3gs1oq0kzraf0f0g.png",
+      "features": [
+        {
+          "code": "setting",
+          "explain": "像启动应用一样快速打开网页",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^https?:\\/\\/[^\\s/$.?#]\\S+$/i",
+              "label": "加入到「网页快开」"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zajj6jnh",
+      "pluginName": "ddl",
+      "logo": "6d0115248cb88c66663227f6d4a172d3.png",
+      "features": [
+        {
+          "code": "DDL",
+          "explain": "请输入DDL语句进行解析",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "DDL",
+              "match": "/CREATE TABLE .*/i",
+              "minLength": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z9hrl8gt",
+      "pluginName": "风险号码检测",
+      "logo": "4c1640041abea770ad4c093b93253c62.png",
+      "features": [
+        {
+          "code": "fengxianhaomajiance20231224",
+          "explain": "手机风险号码检测",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "风险号码检测",
+              "match": "/^1(3\\d|4[5-9]|5[0-35-9]|6[2567]|7[0-8]|8\\d|9[0-35-9])\\d{8}$/",
+              "minLength": 11,
+              "maxLength": 11
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "codehelper",
+      "pluginName": "编码小助手",
+      "logo": "5813fe289be430293b7a725b3fc21656.png",
+      "features": [
+        {
+          "code": "timestamp",
+          "explain": "日期/时间格式转换",
+          "cmds": [
+            {
+              "type": "regex",
+              "minLength": 9,
+              "match": "/^\\d{4}[\\/.-]\\d{1,2}[\\/.-]\\d{1,2}(?:(?: |T)\\d{1,2}:\\d{1,2}:\\d{1,2}(?:\\.\\d{1,6}Z?)?)?$|^[1-9](?:\\d{8,9}|\\d{11,12})$/",
+              "label": "时间格式"
+            }
+          ]
+        },
+        {
+          "code": "hash",
+          "explain": "哈希加密",
+          "cmds": [
+            {
+              "maxNum": 1,
+              "type": "files",
+              "fileType": "file",
+              "label": "文件 Hash"
+            }
+          ]
+        },
+        {
+          "code": "base64encode",
+          "explain": "base64 编码",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "图片 base64 编码"
+            }
+          ]
+        },
+        {
+          "code": "base64decode",
+          "explain": "base64 解码",
+          "cmds": [
+            {
+              "type": "regex",
+              "minLength": 20,
+              "match": "/^(?:[A-Za-z0-9+/][A-Za-z0-9+/][A-Za-z0-9+/][A-Za-z0-9+/])+(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/",
+              "label": "base64 解码"
+            },
+            {
+              "type": "regex",
+              "minLength": 100,
+              "match": "/^data:image\\/(jpg|jpeg|gif|png);base64,/",
+              "label": "base64 图片"
+            }
+          ]
+        },
+        {
+          "code": "urldecode",
+          "explain": "URL 解码",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/%[A-Fa-f0-9][A-Fa-f0-9]/",
+              "label": "URL 解码"
+            }
+          ]
+        },
+        {
+          "code": "unicode",
+          "explain": "Unicode 编码转换",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^(?:\\\\u[a-f0-9]{4})+$|^(?:\\\\x[a-f0-9]{2})+$|^(?:\\\\u\\{[a-f0-9]{2,5}\\})+$|^(U\\+[a-f0-9]{2,5})+$|^(?:&#\\d{2,7};)+$|^(?:&#x[a-f0-9]{2,5};)+$/i",
+              "label": "Unicode 编码转换"
+            }
+          ]
+        },
+        {
+          "code": "hex",
+          "explain": "进制转换",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^0x[0-9a-fA-F]+$/",
+              "label": "进制转换"
+            }
+          ]
+        },
+        {
+          "code": "htmlescape",
+          "explain": "HTML 转义字符",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^&(quot|amp|lt|gt|nbsp);$/i",
+              "label": "HTML 转义字符"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zf3gxqnv",
+      "pluginName": "iPixel",
+      "logo": "9f871dd8cbb6cb2801ec3a2877accd23.png",
+      "features": [
+        {
+          "code": "main",
+          "explain": "iPixel像素画",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "iPixel",
+              "fileType": "file",
+              "match": "/\\.(jpg|png|jpeg)/i",
+              "minLength": 1,
+              "maxLength": 1
+            },
+            {
+              "type": "img",
+              "label": "iPixel"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zp2dyq1a",
+      "pluginName": "视频提取",
+      "logo": "ckxzqzdvywahv8pjlkwdyptvznw8b5yn.png",
+      "features": [
+        {
+          "code": "tiqu",
+          "explain": "提取视频",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "提取视频",
+              "match": "/^(http|https):///"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zybnsqek",
+      "pluginName": "超级文本编辑器",
+      "logo": "4884168a983fd8f976f7bba8dd828589.png",
+      "features": [
+        {
+          "code": "launch",
+          "explain": "文本编辑器",
+          "platform": "[\"win32\",\"darwin\",\"linux\"]",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "以文本形式打开",
+              "fileType": "file",
+              "exclude": "/.*(jpg|jpeg|png|gif|webp|ico|bmp|jfif|mp3|flac|mp4|flv|m3u8|docx|xlsx|pdf|epub|psd|zip)$/",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ztejgmpf",
+      "pluginName": "贷款计算器",
+      "logo": "gfyietdzxvsicxontdd9vcxzmus4rmcy.png",
+      "features": [
+        {
+          "code": "calculator",
+          "explain": "计算器 - 支持四则运算、指数、开方等多种数学函数",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "计算器",
+              "match": "/^[0-9\\+\\-\\*/\\^\\(\\)\\.\\s\\,]*(?:\\d|pi|e)[0-9\\+\\-\\*/\\^\\(\\)\\.\\s\\,]*[\\+\\-\\*/\\^][0-9\\+\\-\\*/\\^\\(\\)\\.\\s\\,]*(?:(?:\\d|pi|e)[0-9\\+\\-\\*/\\^\\(\\)\\.\\s\\,]*)?$/",
+              "minLength": 2
+            },
+            {
+              "type": "regex",
+              "label": "计算器",
+              "match": "/^(sin|cos|tan|asin|acos|atan|sqrt|cbrt|log|log10|pow|abs|round|floor|ceil|factorial)\\s*\\((?:(?:pi|e)|[0-9\\+\\-\\*/\\^\\(\\)\\.\\s\\,])*$/",
+              "minLength": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z02btsij",
+      "pluginName": "悬浮网页",
+      "logo": "qg5qknwzo6euvbefjthmimmnvdgt3sta.png",
+      "features": [
+        {
+          "code": "悬浮网页",
+          "explain": "将网页悬浮置顶到桌面上",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "悬浮网页",
+              "match": "/^(https?:\\/\\/)((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|((\\d{1,3}\\.){3}\\d{1,3}))(\\:\\d+)?(\\/[^\\s]*)*$/i"
+            }
+          ]
+        },
+        {
+          "code": "置顶预览",
+          "explain": "置顶预览媒体/文本文件（支持JPG/MP4/JSON/XML等格式）",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "置顶预览",
+              "match": "/\\.(png|jpe?g|gif|webp|svg|ico|bmp|mp4|avi|mkv|mp3|wav|txt|flac|json|xml|html|)$/i",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ztvyunzj",
+      "pluginName": "五子棋",
+      "logo": "5b5oikmuybgxscrgxzuzzffqlopnjab9.png",
+      "features": [
+        {
+          "code": "五子棋游戏",
+          "explain": "五子棋游戏",
+          "platform": "[\"win32\",\"darwin\",\"linux\"]",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "五子棋游戏"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "QRCode",
+      "pluginName": "二维码助手",
+      "logo": "l5etrpfnctqsy37dnyifwl2quqclwbxg.png",
+      "features": [
+        {
+          "code": "qrcode",
+          "explain": "二维码生成、二维码识别",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^https?:\\/\\/(?:(?:(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3})|(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))\\.?)(?::\\d{2,5})?(?:[/?#][^\\s\"]*)?$/i",
+              "label": "生成二维码"
+            },
+            {
+              "type": "img",
+              "label": "识别图片中二维码"
+            },
+            {
+              "type": "files",
+              "fileType": "file",
+              "extensions": [
+                "png",
+                "jpg"
+              ],
+              "label": "解析二维码图片"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z0foczfb",
+      "pluginName": "腾讯会议快开助手2024版",
+      "logo": "7598b603ffc1da2357b7ba043c2d24f3.png",
+      "features": [
+        {
+          "code": "open_wemeet_room",
+          "explain": "进入腾讯会议房间",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "腾讯会议快速进入",
+              "match": "/#?(?:腾讯会议：)?(\\d{3})[- ]?(\\d{3,4})[- ]?(\\d{3,4})/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zxl6ship",
+      "pluginName": "摸鱼阅读",
+      "logo": "takbivutdcpsatxvgmcmsofwrercszly.png",
+      "features": [
+        {
+          "code": "secret-reader",
+          "explain": "摸鱼阅读神器",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "添加书籍",
+              "fileType": "file",
+              "match": "/^.{1,}.(txt|epub|mobi|TXT|EPUB|MOBI)/",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zangfirv",
+      "pluginName": "兔子二维码",
+      "logo": "e88eea7b3ba0dae692a6f33779ed040a.png",
+      "features": [
+        {
+          "code": "qrdecode",
+          "explain": "识别条形码，二维码。基于开源库 zbar + zxing",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "识别图片中的二维码"
+            },
+            {
+              "type": "files",
+              "label": "识别文件中的二维码",
+              "fileType": "file",
+              "match": "/\\.(jpg|jpeg|png|bmp|webp)$/i",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z6sja3cd",
+      "pluginName": "目录树生成器",
+      "logo": "81da95c14a15cb6fc2d35ec09217ef59.png",
+      "features": [
+        {
+          "code": "file-tree",
+          "explain": "生成目录树",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "生成目录树",
+              "fileType": "directory",
+              "maxLength": 1,
+              "minLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "regex",
+      "pluginName": "正则编辑器",
+      "logo": "637e14288d76389dc4d982a60ba3f6a5.png",
+      "features": [
+        {
+          "code": "regex",
+          "explain": "正则表达式编辑器",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^\\/.*\\/[igmsuUxyDAXJ]*$/",
+              "label": "正则编辑器"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zmupwzpb",
+      "pluginName": "全球ping",
+      "logo": "ad244d9a397c0f02bf9738b5545881ba.png",
+      "features": [
+        {
+          "code": "ping",
+          "explain": "ping",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "ping ip",
+              "match": "/^((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]\\d)|\\d)(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]\\d)|\\d)){3}$/"
+            },
+            {
+              "type": "regex",
+              "label": "ping 域名",
+              "match": "/^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{1,6}$/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zu6e2i3d",
+      "pluginName": "便捷编辑",
+      "logo": "dlneka4u4ethb1he9w11ptwmfjh9zs5f.png",
+      "features": [
+        {
+          "code": "write",
+          "explain": "快速编辑文本",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "编辑复制的文件",
+              "fileType": "file",
+              "minNum": 1,
+              "maxNum": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zqlnvmrn",
+      "pluginName": "全能JSON处理",
+      "logo": "s6x7emdxbaod1l64edjy92tqnozkpfvc.png",
+      "features": [
+        {
+          "code": "json",
+          "explain": "全能的JSON处理工具",
+          "cmds": [
+            {
+              "type": "regex",
+              "minLength": 20,
+              "match": "/^\\s*(\\{[\\s\\S]*\\}|\\[[\\s\\S]*\\])\\s*$/",
+              "label": "Json"
+            },
+            {
+              "type": "regex",
+              "minLength": 20,
+              "match": "/^(['\"`][\\s\\S+]+['\"`])$/",
+              "label": "QuotedJson"
+            },
+            {
+              "type": "regex",
+              "minLength": 20,
+              "match": "/^\\s*</",
+              "label": "XML"
+            },
+            {
+              "type": "regex",
+              "minLength": 20,
+              "match": "/^(?:[A-Za-z0-9+/][A-Za-z0-9+/][A-Za-z0-9+/][A-Za-z0-9+/])+(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/",
+              "label": "Base64 JSON"
+            },
+            {
+              "type": "regex",
+              "minLength": 20,
+              "match": "/\t.*\t.*\t/",
+              "label": "Table-like"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z6p2dqzg",
+      "pluginName": "隐书",
+      "logo": "c88c1fc85a2165947027880e8882576b.png",
+      "features": [
+        {
+          "code": "ReadPic2Text",
+          "explain": "隐书",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "解密获取图片中隐写的文本【获取】",
+              "fileType": "file",
+              "match": "/\\.(?:jpg|jpeg|png)$/i",
+              "minLength": 1,
+              "maxLength": 1
+            },
+            {
+              "type": "img",
+              "label": "解密获取图片中隐写的文本【获取】"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zg2vyrvw",
+      "pluginName": "PNG to SVG",
+      "logo": "ommlnwwes0y2imwqqjntmxgafnrzjlky.png",
+      "features": [
+        {
+          "code": "png2svg",
+          "explain": "Convert PNG to SVG",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "Convert to SVG"
+            },
+            {
+              "type": "files",
+              "label": "Convert to SVG",
+              "fileType": "file",
+              "match": "/\\.(png)$/i",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zhqi2wuc",
+      "pluginName": "ToDesk快开助手",
+      "logo": "snh2wiwr1irr95wvc3q6rldgsfswhov1.png",
+      "features": [
+        {
+          "code": "match:connect/link",
+          "explain": "ToDesk连接（使用链接）",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "发起远程（链接）",
+              "match": "/https:\\/\\/wechat.todesk\\.com\\/invite-page\\?id=(.*?)/i"
+            }
+          ]
+        },
+        {
+          "code": "match:connect/code",
+          "explain": "ToDesk连接（使用设备代码）",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "发起远程（代码）",
+              "match": "/(?:设备代码|td|todesk):?\\s*(\\d{3}\\s*\\d{3}\\s*\\d{3})\\b/i"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z5zvt5d8",
+      "pluginName": "财务助手-发票转Excel",
+      "logo": "1spdsjsxn7yqicj5sahpm8q9p0dopsqy.png",
+      "features": [
+        {
+          "code": "excel",
+          "explain": "发票转Excel",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "file",
+              "match": "/\\.(png|jpeg|jpg|bmp|pdf|ofd)$/i",
+              "label": "处理发票文件"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z93qh1ks",
+      "pluginName": "提取pdf图片",
+      "logo": "ab12d416a37769719a35621c515b5ea5.png",
+      "features": [
+        {
+          "code": "files",
+          "explain": "提取PDF图片",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "提取PDF图片",
+              "fileType": "file",
+              "match": "/pdf/",
+              "minLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zlhwaswz",
+      "pluginName": "提取文件名",
+      "logo": "cqgog442emh7i0ociirlrxqhfalru2ko.png",
+      "features": [
+        {
+          "code": "filename-extractor",
+          "explain": "提取文件夹内的文件名，支持筛选、排序、复制和导出",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "提取文件名",
+              "fileType": "directory"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "znkarij5",
+      "pluginName": "微信文件传输助手",
+      "logo": "3123a68293afbb282284169fe90c6425.png",
+      "features": [
+        {
+          "code": "filehelper",
+          "explain": "微信文件传输助手",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "发送到微信文件传输助手"
+            },
+            {
+              "type": "files",
+              "fileType": "file",
+              "label": "发送到微信文件传输助手"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zmdtg7ii",
+      "pluginName": "玩出花",
+      "logo": "sbyocteozffm66bkft0vsh4e6pdyozcc.png",
+      "features": [
+        {
+          "code": "overlay",
+          "explain": "内部渲染入口",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "直接渲染",
+              "match": "/^[\\s\\S]+$/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a3207f92",
+      "pluginName": "share",
+      "logo": "74649c35dc1c9ec608b3a0ce23a667e1.png",
+      "features": [
+        {
+          "code": "94434e14-778b-417d-8fd5-392f70d14293",
+          "explain": "文件分享",
+          "platform": "[\"win32\",\"darwin\",\"linux\"]",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "分享文件",
+              "fileType": "file",
+              "minNum": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a5c812be",
+      "pluginName": "jFlower(局发)",
+      "logo": "eciknbxn3kpsl5odhl4u6oj39s66m5eq.png",
+      "features": [
+        {
+          "code": "",
+          "explain": "jFlower(局发)",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "jFlower refreshing",
+              "fileType": "file",
+              "minNum": 1,
+              "maxNum": 1
+            },
+            {
+              "type": "img",
+              "label": "jFlower refreshing"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ztkzhilm",
+      "pluginName": "进制转换",
+      "logo": "desqgct7sp0qpr0zszdiribwsaos848a.png",
+      "features": [
+        {
+          "code": "Conversion",
+          "explain": "IP地址转对应进制,对应进制转IP地址",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/(^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$)|(^[0-9A-Fa-f]{8}$)|(^[01]{32}$)|(^[0-7]{11}$)|(^[0-9]{8,10}$)/",
+              "label": "进制转换"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zl4tx1ng",
+      "pluginName": "Taskit",
+      "logo": "u9cd8gjdfsf6gi6gka0nid6qffqpwxdb.png",
+      "features": [
+        {
+          "code": "taskit-search",
+          "explain": "Taskit · 搜索任务",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "搜索任务",
+              "match": "/^tasks?\\s+.+/i",
+              "minLength": 4
+            }
+          ]
+        },
+        {
+          "code": "taskit-report",
+          "explain": "Taskit · 战报（日报 / 周报）",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "打开战报",
+              "match": "/^(战报|日报|周报)\\s*.*/",
+              "minLength": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "88bcd0ea",
+      "pluginName": "关闭进程",
+      "logo": "kvc5tlehba6pk9q0entbwbqeqrzgkkyn.png",
+      "features": [
+        {
+          "code": "killFromMain",
+          "explain": "关闭进程",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "搜索进程（只列出前6项，回车关闭）",
+              "match": "/kill \\S+/i",
+              "minLength": 6
+            }
+          ]
+        },
+        {
+          "code": "restartFromMain",
+          "explain": "重启进程",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "搜索进程（只列出前6项，回车重启）",
+              "match": "/restart \\S+/i",
+              "minLength": 9
+            }
+          ]
+        },
+        {
+          "code": "netstatFromMain",
+          "explain": "关闭端口",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "搜索端口（只列出前6项，回车关闭）",
+              "match": "/netstat \\S+/i",
+              "minLength": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zhgkjiac",
+      "pluginName": "字符画",
+      "logo": "9d36eeb6bc896507afcf1f0bda77535f.png",
+      "features": [
+        {
+          "code": "ASCII_ART",
+          "explain": "生成字符画",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "生成字符画",
+              "match": "/\\S{2,10}/gi"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zpjbgapm",
+      "pluginName": "几何二维码",
+      "logo": "1o1dtn8gtopjcwyyfkvsvjb0ig300yrd.png",
+      "features": [
+        {
+          "code": "generate",
+          "explain": "生成二维码",
+          "cmds": [
+            {
+              "type": "regex",
+              "match": "/^https?:\\/\\/.+/i",
+              "label": "生成二维码"
+            }
+          ]
+        },
+        {
+          "code": "parse",
+          "explain": "识别二维码（截图/图片/摄像头）",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "识别图片中二维码"
+            },
+            {
+              "type": "files",
+              "fileType": "file",
+              "match": "/\\.(png|jpe?g|bmp|gif|webp)$/i",
+              "label": "识别图片中二维码",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z9c4z0de",
+      "pluginName": "Google Authenticator",
+      "logo": "uplanymq7li2hsdt3zrlkz6cc2ppvlxr.png",
+      "features": [
+        {
+          "code": "Google Authenticator",
+          "explain": "谷歌验证器-Google验证器",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "导入谷歌验证器",
+              "match": "/^otpauth-migration:\\/\\/offline\\?data=.+$/i"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zolj9lb2",
+      "pluginName": "万能文件浏览器",
+      "logo": "8k8nltaf18xpteur6cxeeoew8jbra04o.png",
+      "features": [
+        {
+          "code": "function:open:image",
+          "explain": "图片查看",
+          "platform": "[\"win32\",\"darwin\",\"linux\"]",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "图片查看",
+              "fileType": "file",
+              "match": "/.*(jpg|jpeg|png|gif|webp|ico|bmp|jfif|psd|svg|pag)(\\.lnk)?$/i",
+              "minLength": 1,
+              "maxLength": 1
+            },
+            {
+              "type": "img",
+              "label": "图片查看"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zt3gc3hj",
+      "pluginName": "PSD转PNG",
+      "logo": "379c59541841f9828ffaa89ae6d6bdc6.png",
+      "features": [
+        {
+          "code": "psd2png",
+          "explain": "离线批量将PSD导出png文件，无需Photoshop也能导出",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "psd文件导出png文件",
+              "fileType": "file",
+              "match": "/.psd$/",
+              "minNum": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zlxdmmyh",
+      "pluginName": "JSON格式化",
+      "logo": "cim6oqgwoetnk2t246xovcelkbxgplqx.png",
+      "features": [
+        {
+          "code": "jsont",
+          "explain": "JSON格式化工具",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "json",
+              "match": "/^\\s*(\\{[\\s\\S]*\\}|\\[[\\s\\S]*\\])\\s*$/",
+              "minLength": 2
+            },
+            {
+              "type": "files",
+              "label": "json",
+              "fileType": "file",
+              "match": "/\\.json$/i",
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a9734b2c",
+      "pluginName": "特殊符号",
+      "logo": "c805a760774d6deb3b1bcfe49e5966ea.png",
+      "features": [
+        {
+          "code": "特殊符号",
+          "explain": "特殊符号",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "文本正则匹配"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zuaey4qz",
+      "pluginName": "FilesNotes",
+      "logo": "4tmga3rxg5uijeqybiofvgl26yrtyiqf.png",
+      "features": [
+        {
+          "code": "FileNotes",
+          "explain": "添加、查看、删除文件(夹)备注",
+          "cmds": [
+            {
+              "type": "files",
+              "maxLength": 1,
+              "label": "查看备注",
+              "match": "/.*/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zxxxepiu",
+      "pluginName": "鹅的书签",
+      "logo": "baxyyzygngrhcovvanj9ycmmhacjxcxi.png",
+      "features": [
+        {
+          "code": "save_link",
+          "explain": "保存链接到书签",
+          "platform": "[\"win32\",\"darwin\",\"linux\"]",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "保存链接到书签",
+              "match": "/^https?:\\/\\/.*$/i"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z9sumhmn",
+      "pluginName": "YOLO标注",
+      "logo": "rpoynqaatmzgduclqvemtsd7q2pe3ojj.png",
+      "features": [
+        {
+          "code": "label",
+          "explain": "yolo标注",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "yolo标注",
+              "fileType": "image",
+              "minLength": 1,
+              "match": "/.png$|/.jpg$|/.jpeg$/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zec73eod",
+      "pluginName": "长图拼接",
+      "logo": "0fcfa0ac27d669af3d9295316ae3ba0b.png",
+      "features": [
+        {
+          "code": "stitch",
+          "explain": "将多张图片拼接成一张长图",
+          "cmds": [
+            {
+              "type": "img",
+              "label": "图片拼接"
+            },
+            {
+              "type": "files",
+              "label": "图片拼接",
+              "fileType": "file",
+              "match": "/\\.(?:jpeg|jpg|png|webp)$/i",
+              "minLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zjgnvxcp",
+      "pluginName": "Json导图",
+      "logo": "9bae114806230d82d4f098452088bb91.png",
+      "features": [
+        {
+          "code": "editor",
+          "explain": "JSON导图 - 一个将JSON变成思维导图的编辑器(json|思维导图|json导图)",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "json导图",
+              "match": "/^[\\{\\[](.|\\n)*[\\}\\]]$/",
+              "minLength": 5
+            },
+            {
+              "type": "files",
+              "label": "json导图",
+              "fileType": "file",
+              "match": "/\\.json$/i",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zl4ylli5",
+      "pluginName": "文件预览",
+      "logo": "kwk3b4qqgo8jvgjnrr2ptszfcunyim0s.png",
+      "features": [
+        {
+          "code": "open_image_viewer",
+          "explain": "图片预览",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "图片预览",
+              "fileType": "file",
+              "match": "/.(jpe?g|png|gif|bmp|svg|webp|ico)$/i",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zhx7su5b",
+      "pluginName": "腾讯会议助手",
+      "logo": "e66a323f6c068e6126960e7405809014.png",
+      "features": [
+        {
+          "code": "enter",
+          "explain": "腾讯会议助手",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "进入会议",
+              "match": "/\\d{3,4}-\\d{3,4}-\\d{3,4}|^\\d{9,12}$|\\d{3,4}\\s\\d{3,4}\\s\\d{3,4}/",
+              "minLength": 9,
+              "maxLength": 14
+            }
+          ]
+        },
+        {
+          "code": "extract_enter",
+          "explain": "腾讯会议助手",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "进入会议",
+              "match": "/邀请您参加腾讯会议([\\s\\S]*)\\n会议主题：[^\\x00-\\xff]*([\\s\\S]*)/",
+              "minLength": 160,
+              "maxLength": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zzo6ljcs",
+      "pluginName": "红白机",
+      "logo": "xnikunndsuw5flbpxhuni55kjvgh6txv.png",
+      "features": [
+        {
+          "code": "mainGame",
+          "explain": "打开红白机模拟器",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "打开游戏",
+              "match": "^红白机.*"
+            },
+            {
+              "type": "regex",
+              "label": "打开游戏",
+              "match": "^game.*"
+            },
+            {
+              "type": "regex",
+              "label": "打开游戏",
+              "match": "^hbj.*"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zjrwohkq",
+      "pluginName": "FFmpeg 助手",
+      "logo": "ab57f4d7aff5b474d90c6e50d76eefbb.png",
+      "features": [
+        {
+          "code": "ffmpeg",
+          "explain": "FFmpeg助手",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "ffmpeg",
+              "fileType": "file",
+              "match": "/.*\\.(mp4|webm|mkv|avi|mpg|ogv|flv|mp3|m4a|ogg|flac|wav)/i",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zcl1sywj",
+      "pluginName": "小康云盘",
+      "logo": "121e4963fba90ce0f9a6e31de84aea92.png",
+      "features": [
+        {
+          "code": "yunpan",
+          "explain": "小康云盘",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "打开首页",
+              "match": "/[小康云盘xiaokangyunpan]{2}/i",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zuexwu2r",
+      "pluginName": "视频下载器",
+      "logo": "qdhy9pe6o5hioy8uk0m6i8fqrcb5lyde.png",
+      "features": [
+        {
+          "code": "download",
+          "explain": "下载视频",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "下载视频",
+              "match": "/^https?://[^\\s/$.?#]\\S+$|^[a-z0-9][-a-z0-9]{0,62}(\\.[a-z0-9][-a-z0-9]{0,62}){1,10}(:[0-9]{1,5})?$/im"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zqejo6wi",
+      "pluginName": "数字恶臭化工具",
+      "logo": "23baebd0c5bfa3c75356bdc2668fcb0d.png",
+      "features": [
+        {
+          "code": "echo",
+          "explain": "将数字恶臭化",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "数字恶臭化",
+              "match": "/^\\d{1,}$/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zqkrjidj",
+      "pluginName": "ScholarSeek 学术搜索助手",
+      "platform": "[\"win32\"]",
+      "logo": "wlrot0bdl5cbj7qqai9c4n8vocxdedn1.png",
+      "features": [
+        {
+          "code": "paper",
+          "explain": "输入论文标题或DOI快速下载",
+          "platform": "[\"win32\",\"darwin\",\"linux\"]",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "识别DOI",
+              "match": "/10.\\d{4,9}/[-._;()/:A-Z0-9]+/i"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z5hhls9x",
+      "pluginName": "合并/拆分Excel",
+      "logo": "t1blilu1umcfcrqua7ef7fpzgzmxylea.png",
+      "features": [
+        {
+          "code": "Merge",
+          "explain": "合并Excel",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "合并Excel",
+              "fileType": "file",
+              "match": "/\\S+\\.(xls|xlsx)$/",
+              "minLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z0mfppdb",
+      "pluginName": "理财工具箱",
+      "logo": "a567d4bab0e00ab7a6bc670bcba9f980.png",
+      "features": [
+        {
+          "code": "fee",
+          "explain": "费率计算",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "费率计算",
+              "match": "/^[1-9]\\d{0,9}(\\.\\d{2})?$/",
+              "minLength": 1,
+              "maxLength": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zbtzqjgj",
+      "pluginName": "uniapp应用开发工具",
+      "logo": "jged2gciksfp1hnzssuvdwt930j0ynt2.png",
+      "features": [
+        {
+          "code": "files",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "导入项目",
+              "fileType": "file",
+              "match": "/manifest.json/i",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zjtwjecd",
+      "pluginName": "EasyGIF",
+      "logo": "b1aa180d65e7553c44c3a2f4256d9e6a.png",
+      "features": [
+        {
+          "code": "EasyGIF",
+          "explain": "GIF编辑,MP4转GIF,图片转GIF,GIF帧提取,GIF转WebP",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "GIF编辑",
+              "fileType": "file",
+              "match": "/\\.gif$/i",
+              "minLength": 1,
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zxums3it",
+      "pluginName": "视频下载器（youtube）",
+      "logo": "41eed53a484523a9c4fe308418d1dfab.png",
+      "features": [
+        {
+          "code": "ytDownloader",
+          "explain": "高清视频下载器",
+          "cmds": [
+            {
+              "type": "regex",
+              "label": "YouTube视频链接",
+              "match": "/^(https?:\\/\\/)?(www\\.)?(youtube\\.com|youtu\\.be).+$/",
+              "minLength": 10,
+              "maxLength": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zbh26qzg",
+      "pluginName": "鹅的笔记",
+      "logo": "nsefsk14fmqkjoscfze3ru2pnnadmwxj.png",
+      "features": [
+        {
+          "code": "open_folder",
+          "explain": "打开 Markdown 文件夹",
+          "cmds": [
+            {
+              "type": "files",
+              "fileType": "directory",
+              "label": "用鹅的笔记打开",
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "z7iib9ed",
+      "pluginName": "超级文件加解密",
+      "logo": "5e2891a38ec634474b9d7bd20cdbfa46.png",
+      "features": [
+        {
+          "code": "read-dir",
+          "explain": "读取文件夹内office文件进行加解密",
+          "cmds": [
+            {
+              "type": "files",
+              "label": "文件加解密",
+              "fileType": "directory",
+              "maxLength": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

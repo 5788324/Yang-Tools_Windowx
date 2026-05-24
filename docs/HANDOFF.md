@@ -1,13 +1,13 @@
 # HANDOFF
 
-最后更新：2026-05-24
+最后更新：2026-05-24 18:15
 
 ## 当前状态
 
 - 仓库：`5788324/Yang-Tools_Windowx`
 - 本地路径：`D:\codex\Yang Agent_Windows\Yang-Tools_Windowx`
-- 当前阶段：仓库初始化与架构/流程文档建立
-- 代码状态：尚未生成 Electron 工程
+- 当前阶段：Electron/Vue 最小工程已创建
+- 代码状态：可以安装依赖、类型检查、构建
 - 产品名称：`Yang Tools`
 
 ## 已完成
@@ -42,6 +42,27 @@
 
 - 注意：`local-plugin-library/` 已加入 `.gitignore`，用于本机适配分析，不提交第三方插件源码。
 - 解析 uTools `remote` 索引，发现 97 个插件元信息。
+- 创建 Yang Tools Electron + Vue + TypeScript 最小工程。
+- 实现插件样本扫描器：
+  - 读取 `local-plugin-library/ztools/*/plugin.json`
+  - 读取 `local-plugin-library/utools/remote`
+  - 统一输出 `PluginSummary`
+- 实现 preload 安全桥：
+  - `window.yangTools.getAppInfo()`
+  - `window.yangTools.listPluginSamples()`
+- 实现首个 Vue 界面：展示 ZTools/uTools 样本数量、功能数量、插件列表、触发类型标签。
+- 新增样本分析脚本：
+
+  ```powershell
+  npm.cmd run lint:manifests
+  ```
+
+- 生成分析结果：
+
+  ```text
+  docs/plugin-analysis/sample-summary.md
+  docs/plugin-analysis/sample-summary.json
+  ```
 
 ## ZTools 样本观察
 
@@ -64,12 +85,12 @@
 
 ## 未完成
 
-- 尚未创建 Electron/Vue 工程。
-- 尚未实现插件运行时。
+- 尚未实现真实插件运行时。
 - 尚未实现 ZTools 兼容层。
 - 尚未实现 uTools `.asar` 解包和兼容分析脚本。
-- 尚未复制或迁移本机 ZTools 插件。
-- 尚未设计最终 UI。
+- 尚未实现托盘、全局快捷键、插件窗口。
+- 尚未复制或迁移本机 ZTools 插件为可运行插件。
+- UI 只是第一个工程界面，不是最终视觉稿。
 
 ## 阻塞/风险
 
@@ -78,6 +99,12 @@
 - 第三方插件版权/许可证未知，不要提交原始插件源码到公开仓库。
 - `easy-translate` 自带 preload 目录和依赖，兼容复杂度高。
 - `shortcut-capture` 涉及截图编辑器窗口、多显示器、DPI 和文件/剪贴板能力，是高风险适配样本。
+- PowerShell 直接执行 `npm` 会被脚本策略拦截，请使用 `npm.cmd`。
+- npm 默认缓存目录无权限，安装依赖时使用：
+
+  ```powershell
+  npm.cmd install --cache .\.npm-cache
+  ```
 
 ## 下一位 AI 从这里开始
 
@@ -89,9 +116,17 @@
    ```
 
 2. 如果文档还未提交，先提交并推送。
-3. 创建 Electron + Vue + TypeScript 工程骨架。
-4. 实现最小插件加载器，优先读取 ZTools `plugin.json` 和 uTools remote 索引并展示插件列表。
-5. 做 `window.ztools` / `window.utools` 到 `window.yangTools` 的兼容桥，不要直接给插件开放完整 Node.js 权限。
+3. 运行验证：
+
+   ```powershell
+   npm.cmd install --cache .\.npm-cache
+   npm.cmd run typecheck
+   npm.cmd run build
+   npm.cmd run lint:manifests
+   ```
+
+4. 下一步实现托盘、全局快捷键和插件窗口管理。
+5. 再做 `window.ztools` / `window.utools` 到 `window.yangTools` 的兼容桥，不要直接给插件开放完整 Node.js 权限。
 
 ## 最近验证
 
@@ -100,3 +135,7 @@
 - 已读取 `clipboard/preload.js` 和 `shortcut-capture/preload.js` 片段。
 - 已复制本地插件样本到 `local-plugin-library/`。
 - 已解析 uTools remote 索引：97 个插件。
+- `npm.cmd install --cache .\.npm-cache` 成功。
+- `npm.cmd run typecheck` 成功。
+- `npm.cmd run build` 成功。
+- `npm.cmd run lint:manifests` 成功，生成插件样本分析。

@@ -1,0 +1,31 @@
+{
+  "name": "yang-tools",
+  "version": "0.1.0",
+  "description": "Yang's personal Windows desktop toolbox.",
+  "main": "out/main/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "npm run typecheck && electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json --composite false",
+    "lint:manifests": "tsx scripts/analyze-plugin-samples.ts"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.2",
+    "@electron-toolkit/utils": "^4.0.0",
+    "electron-store": "^10.1.0",
+    "vue": "^3.5.24"
+  },
+  "devDependencies": {
+    "@electron/asar": "^4.0.1",
+    "@swc/core": "^1.15.40",
+    "@vitejs/plugin-vue": "^6.0.2",
+    "electron": "^39.2.6",
+    "electron-vite": "^4.0.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.4",
+    "vue-tsc": "^3.1.5"
+  }
+}
