@@ -1,4 +1,4 @@
-# Yang Tools Windowx · AI 开发指南
+# Yang Tools · AI 开发指南
 
 你正在开发一个个人专属 Windows 桌面工具箱。用户是代码新手，主要依赖 AI 全程开发，所以你必须把工作拆清楚、写清楚、交接清楚。
 
@@ -9,6 +9,7 @@
 - 插件化，核心保持轻量。
 - 首批重点：截图/钉图、OCR、翻译、剪贴板、批量重命名。
 - 需要兼容本机已有 ZTools 插件样本。
+- 需要分析本机已有 uTools 插件样本，优先复用 manifest/触发规则思想。
 
 ## 推荐技术栈
 
@@ -42,6 +43,20 @@ docs/DECISIONS/    架构决策记录
 C:\Users\YANG\AppData\Roaming\ZTools\plugins
 ```
 
+uTools 插件路径：
+
+```text
+C:\Users\YANG\AppData\Roaming\uTools\plugins
+```
+
+本地样本库：
+
+```text
+local-plugin-library/
+```
+
+注意：`local-plugin-library/` 是本机分析样本，已加入 `.gitignore`，不要把第三方插件源码提交到公开仓库。
+
 已发现插件：
 
 - `calculation-paper`
@@ -74,4 +89,3 @@ C:\Users\YANG\AppData\Roaming\ZTools\plugins
 - `docs/worklogs/YYYY-MM-DD.md`
 
 如果上下文快满，优先更新 `docs/HANDOFF.md`，让下一位 AI 能继续。
-

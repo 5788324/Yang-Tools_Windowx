@@ -1,4 +1,4 @@
-# 开发路线
+# Yang Tools 开发路线
 
 ## Phase 0：项目初始化
 
@@ -44,6 +44,17 @@
 5. 截图
 6. 易翻翻译
 
+## Phase 3.5：uTools 样本分析
+
+目标：从 uTools 插件生态中提取可复用的触发规则和插件协议经验。
+
+- 保存本机 uTools 插件样本到 `local-plugin-library/utools`。
+- 解析 `remote` 索引。
+- 添加 asar 只读分析脚本。
+- 提取常见 `plugin.json`/manifest。
+- 整理 OCR、截图、翻译、文件处理插件的交互模式。
+- 决定哪些插件做兼容运行，哪些只做参考重写。
+
 ## Phase 4：首批自研插件
 
 目标：做出个人专属核心插件。
@@ -72,4 +83,3 @@
 - 将插件工具注册到本地 AI tool registry。
 - 为 Codex/Claude/Antigravity 编写使用文档。
 - 支持用户用自然语言让 AI 新增插件。
-

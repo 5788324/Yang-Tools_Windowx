@@ -1,4 +1,4 @@
-# Yang Tools Windowx
+# Yang Tools
 
 个人专属 Windows 桌面工具箱。目标是做一个类似 PowerToys Run、ZTools、uTools、PixPin 的轻量工具平台，但保持无账号、无付费、无臃肿、可被 AI 持续改造。
 
@@ -30,6 +30,14 @@
 C:\Users\YANG\AppData\Roaming\ZTools\plugins
 ```
 
+已发现本机 uTools 插件样本：
+
+```text
+C:\Users\YANG\AppData\Roaming\uTools\plugins
+```
+
+uTools 插件多为 `.asar` 包，已复制到本地样本库，后续用于适配分析。
+
 ## 核心原则
 
 - 本地优先：默认不需要账号、云服务或会员系统。
@@ -44,6 +52,7 @@ C:\Users\YANG\AppData\Roaming\ZTools\plugins
 - [docs/WORKFLOW.md](docs/WORKFLOW.md)：开始/结束工作流程。
 - [docs/HANDOFF.md](docs/HANDOFF.md)：当前交接日志，任何新对话先读这里。
 - [docs/ZTOOLS_COMPATIBILITY.md](docs/ZTOOLS_COMPATIBILITY.md)：ZTools 插件兼容计划。
+- [docs/UTOOLS_COMPATIBILITY.md](docs/UTOOLS_COMPATIBILITY.md)：uTools 插件兼容计划。
 - [docs/PLUGIN_SPEC.md](docs/PLUGIN_SPEC.md)：Yang Tools 插件协议草案。
 - [docs/ROADMAP.md](docs/ROADMAP.md)：分阶段开发路线。
 
@@ -70,4 +79,3 @@ git push
 
 - `docs/HANDOFF.md`
 - `docs/worklogs/YYYY-MM-DD.md`
-
