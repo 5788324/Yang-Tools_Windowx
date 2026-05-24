@@ -14,7 +14,7 @@
 | 插件 | 状态 | 当前判断 | 下一步 |
 |---|---|---|---|
 | `calculation-paper` | `api-ready` | 需要的 API 较少：`getAppName`、`isMacOS`、`onPluginEnter`、`onMainPush`、`copyText`、`db.allDocs/remove/put`。兼容桥已覆盖，搜索 regex 触发已接入。 | 运行应用，输入 `1+2`，通过“运行匹配”打开插件，验证计算、保存稿纸、删除稿纸。 |
-| `clipboard` | `blocked` | 需要剪贴板历史：`clipboard.search`、`clipboard.getHistory`。当前只有占位。 | 先实现剪贴板历史存储。 |
+| `clipboard` | `api-ready` | 文本剪贴板历史已接入：`clipboard.search`、`clipboard.getHistory` 可返回文本历史。图片/文件历史仍未实现，第三方插件自己的 preload 仍未执行。 | 运行应用，复制几段文本，打开剪贴板插件，验证搜索历史。 |
 | `easy-translate` | `blocked` | 自带复杂 preload、网络请求、多个翻译服务和图片翻译。 | 等权限系统和网络配置完成后再适配。 |
 | `file-renamer` | `blocked` | 需要文件触发和文件重命名权限。 | 实现文件触发 payload、权限确认、批量文件操作 API。 |
 | `shortcut-capture` | `blocked` | 需要截图、图片读写、多窗口编辑器、Electron API。 | 先做自研截图/钉图插件，再考虑兼容。 |

@@ -65,7 +65,7 @@ await window.ztools.clipboard.writeText(text)
 window.ztools.copyText(text)
 ```
 
-以下接口已占位，但还没有真实历史数据：
+以下接口已支持文本历史，图片/文件历史后续补齐：
 
 ```ts
 await window.ztools.clipboard.search(query)

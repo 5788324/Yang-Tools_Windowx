@@ -55,8 +55,9 @@ const db = {
 const clipboardApi = {
   readText: () => ipcRenderer.invoke('plugin:clipboard-read-text') as Promise<string>,
   writeText: (text: string) => ipcRenderer.invoke('plugin:clipboard-write-text', text) as Promise<{ ok: boolean }>,
-  search: async () => [],
-  getHistory: async () => ({ items: [], total: 0 })
+  search: (query: string) => ipcRenderer.invoke('plugin:clipboard-search', query) as Promise<unknown[]>,
+  getHistory: (page = 1, pageSize = 50) =>
+    ipcRenderer.invoke('plugin:clipboard-get-history', page, pageSize) as Promise<{ items: unknown[]; total: number }>
 }
 
 const compatibilityApi = {

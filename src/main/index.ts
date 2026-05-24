@@ -1,4 +1,5 @@
 import { app, ipcMain } from 'electron'
+import { ClipboardHistoryManager } from './clipboardHistoryManager'
 import { matchZtoolsCommands } from './commandMatcher'
 import { scanPluginSamples } from './pluginSamples'
 import { HotkeyManager } from './hotkeyManager'
@@ -10,6 +11,7 @@ import type { OpenPluginRequest } from '../shared/pluginTypes'
 let windowManager: WindowManager
 let trayManager: TrayManager
 let hotkeyManager: HotkeyManager
+let clipboardHistoryManager: ClipboardHistoryManager
 
 function registerIpc(): void {
   ipcMain.handle('app:get-info', () => ({
@@ -24,7 +26,7 @@ function registerIpc(): void {
   ipcMain.handle('plugins:open-sample', (_event, request: OpenPluginRequest) =>
     windowManager.openSamplePlugin(request)
   )
-  registerPluginIpc(windowManager)
+  registerPluginIpc(windowManager, clipboardHistoryManager)
 }
 
 if (!app.requestSingleInstanceLock()) {
@@ -38,11 +40,13 @@ if (!app.requestSingleInstanceLock()) {
     windowManager = new WindowManager()
     trayManager = new TrayManager(windowManager)
     hotkeyManager = new HotkeyManager(windowManager)
+    clipboardHistoryManager = new ClipboardHistoryManager()
 
     registerIpc()
     windowManager.createMainWindow()
     trayManager.create()
     hotkeyManager.registerAll()
+    clipboardHistoryManager.start()
 
     app.on('activate', () => {
       windowManager.showMainWindow()
@@ -57,4 +61,5 @@ app.on('window-all-closed', () => {
 app.on('before-quit', () => {
   hotkeyManager?.unregisterAll()
   trayManager?.destroy()
+  clipboardHistoryManager?.stop()
 })
