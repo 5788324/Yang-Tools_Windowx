@@ -1,12 +1,12 @@
 # HANDOFF
 
-最后更新：2026-05-24 18:15
+最后更新：2026-05-24 18:35
 
 ## 当前状态
 
 - 仓库：`5788324/Yang-Tools_Windowx`
 - 本地路径：`D:\codex\Yang Agent_Windows\Yang-Tools_Windowx`
-- 当前阶段：Electron/Vue 最小工程已创建
+- 当前阶段：Electron/Vue 桌面壳雏形已创建
 - 代码状态：可以安装依赖、类型检查、构建
 - 产品名称：`Yang Tools`
 
@@ -51,6 +51,21 @@
   - `window.yangTools.getAppInfo()`
   - `window.yangTools.listPluginSamples()`
 - 实现首个 Vue 界面：展示 ZTools/uTools 样本数量、功能数量、插件列表、触发类型标签。
+- 实现托盘基础能力：
+  - 托盘图标
+  - 显示主窗口
+  - 隐藏主窗口
+  - 退出应用
+- 实现全局快捷键基础能力：
+  - 默认 `Alt+Space`
+  - 切换主窗口显示/隐藏
+- 实现主窗口行为：
+  - 点击关闭按钮时隐藏到托盘
+  - 应用保持后台运行
+  - 第二实例启动时聚焦主窗口
+- 实现最小插件窗口管理器：
+  - 当前只支持打开 `local-plugin-library/ztools/*/plugin.json` 中的展开目录样本
+  - uTools `.asar` 暂时显示“待适配”
 - 新增样本分析脚本：
 
   ```powershell
@@ -88,7 +103,9 @@
 - 尚未实现真实插件运行时。
 - 尚未实现 ZTools 兼容层。
 - 尚未实现 uTools `.asar` 解包和兼容分析脚本。
-- 尚未实现托盘、全局快捷键、插件窗口。
+- 尚未实现插件 preload 兼容桥。
+- 尚未实现插件权限系统。
+- 尚未实现插件安装/卸载/更新。
 - 尚未复制或迁移本机 ZTools 插件为可运行插件。
 - UI 只是第一个工程界面，不是最终视觉稿。
 
@@ -99,6 +116,7 @@
 - 第三方插件版权/许可证未知，不要提交原始插件源码到公开仓库。
 - `easy-translate` 自带 preload 目录和依赖，兼容复杂度高。
 - `shortcut-capture` 涉及截图编辑器窗口、多显示器、DPI 和文件/剪贴板能力，是高风险适配样本。
+- 当前“打开 ZTools 样本”只加载入口 HTML，并没有注入 `window.ztools` 兼容 API，所以依赖 ZTools API 的插件可能无法正常运行。
 - PowerShell 直接执行 `npm` 会被脚本策略拦截，请使用 `npm.cmd`。
 - npm 默认缓存目录无权限，安装依赖时使用：
 
@@ -125,8 +143,11 @@
    npm.cmd run lint:manifests
    ```
 
-4. 下一步实现托盘、全局快捷键和插件窗口管理。
-5. 再做 `window.ztools` / `window.utools` 到 `window.yangTools` 的兼容桥，不要直接给插件开放完整 Node.js 权限。
+4. 下一步实现插件 preload 兼容桥：
+   - `window.ztools`
+   - `window.utools`
+   - `window.yangTools`
+5. 再实现权限声明和插件安装/卸载。
 
 ## 最近验证
 
@@ -139,3 +160,7 @@
 - `npm.cmd run typecheck` 成功。
 - `npm.cmd run build` 成功。
 - `npm.cmd run lint:manifests` 成功，生成插件样本分析。
+- 新增托盘/快捷键/插件窗口后再次验证：
+  - `npm.cmd run typecheck` 成功
+  - `npm.cmd run build` 成功
+  - `npm.cmd run lint:manifests` 成功

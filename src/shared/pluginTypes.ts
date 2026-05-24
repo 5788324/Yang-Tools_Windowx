@@ -60,6 +60,16 @@ export interface PluginSummary {
   compatibilityNotes: string[]
 }
 
+export interface OpenPluginRequest {
+  source: PluginSource
+  id: string
+}
+
+export interface OpenPluginResult {
+  ok: boolean
+  error?: string
+}
+
 export interface PluginSampleReport {
   generatedAt: string
   ztools: {

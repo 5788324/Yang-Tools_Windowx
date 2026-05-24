@@ -30,6 +30,31 @@ export function scanPluginSamples(): PluginSampleReport {
   }
 }
 
+export function findZtoolsPluginById(
+  id: string
+): { dir: string; manifest: RawPluginManifest; summary: PluginSummary } | null {
+  const root = join(resolveSampleRoot(), 'ztools')
+  if (!existsSync(root)) return null
+
+  for (const name of readdirSync(root)) {
+    const dir = join(root, name)
+    const manifestPath = join(dir, 'plugin.json')
+    if (!statSync(dir).isDirectory() || !existsSync(manifestPath)) continue
+
+    try {
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as RawPluginManifest
+      const summary = toSummary(manifest, 'ztools-local')
+      if (summary.id === id || summary.name === id || name === id) {
+        return { dir, manifest, summary }
+      }
+    } catch {
+      continue
+    }
+  }
+
+  return null
+}
+
 export function emptyPluginSampleReport(): PluginSampleReport {
   return {
     ...EMPTY_REPORT,

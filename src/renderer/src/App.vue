@@ -15,6 +15,7 @@ const query = ref('')
 const source = ref<'all' | 'ztools-local' | 'utools-remote'>('all')
 const loading = ref(true)
 const error = ref('')
+const openingPluginId = ref('')
 
 const plugins = computed(() => {
   if (!report.value) return []
@@ -62,6 +63,26 @@ onMounted(async () => {
 
 function sourceLabel(plugin: PluginSummary): string {
   return plugin.source === 'ztools-local' ? 'ZTools' : 'uTools'
+}
+
+async function openPlugin(plugin: PluginSummary): Promise<void> {
+  error.value = ''
+  openingPluginId.value = `${plugin.source}:${plugin.id}`
+
+  try {
+    const result = await window.yangTools.openSamplePlugin({
+      source: plugin.source,
+      id: plugin.id
+    })
+
+    if (!result.ok) {
+      error.value = result.error || '打开插件失败'
+    }
+  } catch (currentError) {
+    error.value = currentError instanceof Error ? currentError.message : String(currentError)
+  } finally {
+    openingPluginId.value = ''
+  }
 }
 </script>
 
@@ -141,6 +162,12 @@ function sourceLabel(plugin: PluginSummary): string {
           <div class="plugin-meta">
             <span>{{ plugin.featureCount }} 功能</span>
             <span>{{ plugin.commandCount }} 触发</span>
+            <button
+              :disabled="plugin.source !== 'ztools-local' || openingPluginId === `${plugin.source}:${plugin.id}`"
+              @click="openPlugin(plugin)"
+            >
+              {{ plugin.source === 'ztools-local' ? '打开' : '待适配' }}
+            </button>
           </div>
         </article>
       </section>

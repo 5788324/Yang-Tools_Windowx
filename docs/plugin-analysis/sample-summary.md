@@ -1,6 +1,6 @@
 # 插件样本分析
 
-生成时间：2026-05-24T10:02:14.343Z
+生成时间：stable-local-analysis
 
 - ZTools 样本：6
 - uTools 索引：97

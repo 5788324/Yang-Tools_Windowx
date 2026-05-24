@@ -294,6 +294,21 @@ input {
   font-size: 12px;
 }
 
+.plugin-meta button {
+  height: 28px;
+  border: 1px solid #cfd7e3;
+  border-radius: 6px;
+  color: #153c61;
+  background: #f8fbff;
+  cursor: pointer;
+}
+
+.plugin-meta button:disabled {
+  color: #9aa3af;
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
 .error {
   padding: 10px 12px;
   border: 1px solid #ffc8c8;

@@ -1,0 +1,134 @@
+import { BrowserWindow, shell } from 'electron'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+import { is } from '@electron-toolkit/utils'
+import { findZtoolsPluginById } from './pluginSamples'
+import type { OpenPluginRequest, OpenPluginResult } from '../shared/pluginTypes'
+
+export class WindowManager {
+  private mainWindow: BrowserWindow | null = null
+  private pluginWindows = new Map<string, BrowserWindow>()
+  private isQuitting = false
+
+  createMainWindow(): BrowserWindow {
+    if (this.mainWindow && !this.mainWindow.isDestroyed()) return this.mainWindow
+
+    this.mainWindow = new BrowserWindow({
+      width: 980,
+      height: 680,
+      minWidth: 860,
+      minHeight: 560,
+      title: 'Yang Tools',
+      backgroundColor: '#f6f7f9',
+      show: false,
+      webPreferences: {
+        preload: join(__dirname, '../preload/index.js'),
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: false
+      }
+    })
+
+    this.mainWindow.once('ready-to-show', () => {
+      this.mainWindow?.show()
+    })
+
+    this.mainWindow.on('close', (event) => {
+      if (this.isQuitting) return
+      event.preventDefault()
+      this.mainWindow?.hide()
+    })
+
+    this.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+      shell.openExternal(url)
+      return { action: 'deny' }
+    })
+
+    if (is.dev && process.env.ELECTRON_RENDERER_URL) {
+      this.mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
+    } else {
+      this.mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    }
+
+    return this.mainWindow
+  }
+
+  showMainWindow(): void {
+    const win = this.createMainWindow()
+    if (win.isMinimized()) win.restore()
+    win.show()
+    win.focus()
+  }
+
+  toggleMainWindow(): void {
+    const win = this.createMainWindow()
+    if (win.isVisible() && win.isFocused()) {
+      win.hide()
+      return
+    }
+
+    this.showMainWindow()
+  }
+
+  hideMainWindow(): void {
+    this.mainWindow?.hide()
+  }
+
+  async openSamplePlugin(request: OpenPluginRequest): Promise<OpenPluginResult> {
+    if (request.source !== 'ztools-local') {
+      return { ok: false, error: '当前只支持打开 ZTools 本地展开目录样本。uTools asar 包后续解包后适配。' }
+    }
+
+    const plugin = findZtoolsPluginById(request.id)
+    if (!plugin) return { ok: false, error: `未找到插件样本: ${request.id}` }
+    if (!plugin.manifest.main) return { ok: false, error: '插件缺少 main 入口' }
+
+    const entry = join(plugin.dir, plugin.manifest.main)
+    if (!existsSync(entry)) return { ok: false, error: `插件入口不存在: ${entry}` }
+
+    const key = `${request.source}:${request.id}`
+    const existing = this.pluginWindows.get(key)
+    if (existing && !existing.isDestroyed()) {
+      existing.show()
+      existing.focus()
+      return { ok: true }
+    }
+
+    const win = new BrowserWindow({
+      width: 860,
+      height: 620,
+      minWidth: 480,
+      minHeight: 320,
+      title: plugin.summary.title,
+      backgroundColor: '#ffffff',
+      show: false,
+      webPreferences: {
+        preload: join(__dirname, '../preload/index.js'),
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: false,
+        webSecurity: true
+      }
+    })
+
+    win.webContents.setWindowOpenHandler(({ url }) => {
+      shell.openExternal(url)
+      return { action: 'deny' }
+    })
+
+    win.once('ready-to-show', () => win.show())
+    win.on('closed', () => this.pluginWindows.delete(key))
+
+    await win.loadFile(entry)
+    this.pluginWindows.set(key, win)
+    return { ok: true }
+  }
+
+  quit(): void {
+    this.isQuitting = true
+    for (const win of this.pluginWindows.values()) {
+      if (!win.isDestroyed()) win.close()
+    }
+    this.mainWindow?.close()
+  }
+}

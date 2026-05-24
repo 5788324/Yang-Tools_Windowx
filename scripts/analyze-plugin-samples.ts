@@ -12,7 +12,7 @@ const ztools = readZtools()
 const utools = readUtoolsRemote()
 
 const summary = {
-  generatedAt: new Date().toISOString(),
+  generatedAt: 'stable-local-analysis',
   ztools,
   utools
 }
