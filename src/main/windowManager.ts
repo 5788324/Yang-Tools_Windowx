@@ -90,9 +90,14 @@ export class WindowManager {
     const key = `${request.source}:${request.id}`
     const existing = this.pluginWindows.get(key)
     if (existing && !existing.isDestroyed()) {
-      existing.show()
-      existing.focus()
-      return { ok: true }
+      if (hasLaunchPayload(request)) {
+        existing.close()
+        this.pluginWindows.delete(key)
+      } else {
+        existing.show()
+        existing.focus()
+        return { ok: true }
+      }
     }
 
     const win = new BrowserWindow({
@@ -105,7 +110,7 @@ export class WindowManager {
       show: false,
       webPreferences: {
         preload: resolvePreloadPath('plugin'),
-        additionalArguments: [`--yang-tools-plugin=${encodeLaunchContext(plugin.summary)}`],
+        additionalArguments: [`--yang-tools-plugin=${encodeLaunchContext(plugin.summary, request)}`],
         contextIsolation: true,
         nodeIntegration: false,
         sandbox: false,
@@ -135,16 +140,23 @@ export class WindowManager {
   }
 }
 
-function encodeLaunchContext(summary: { id: string; name: string; title: string; source: PluginLaunchContext['source'] }): string {
+function hasLaunchPayload(request: OpenPluginRequest): boolean {
+  return Boolean(request.code || request.triggerType || request.payload)
+}
+
+function encodeLaunchContext(
+  summary: { id: string; name: string; title: string; source: PluginLaunchContext['source'] },
+  request: OpenPluginRequest
+): string {
   const context: PluginLaunchContext = {
     id: summary.id,
     name: summary.name,
     title: summary.title,
     source: summary.source,
-    code: 'open',
-    type: 'manual',
-    payload: '',
-    from: 'sample-list'
+    code: request.code || 'open',
+    type: request.triggerType || 'manual',
+    payload: request.payload ?? '',
+    from: request.from || 'sample-list'
   }
 
   return Buffer.from(JSON.stringify(context), 'utf8').toString('base64url')

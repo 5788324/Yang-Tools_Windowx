@@ -206,6 +206,66 @@ input {
   background: #e8eef7;
 }
 
+.run-btn {
+  height: 38px;
+  min-width: 88px;
+  border: 1px solid #b9c8dc;
+  border-radius: 7px;
+  color: #153c61;
+  background: #f8fbff;
+  cursor: pointer;
+}
+
+.run-btn:disabled {
+  color: #9aa3af;
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.matches {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.matches article {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #cfe0f2;
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.matches strong {
+  margin-right: 8px;
+}
+
+.matches span {
+  color: #28638f;
+  font-size: 13px;
+}
+
+.matches p {
+  margin: 4px 0 0;
+  overflow: hidden;
+  color: #5f6b7a;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.matches button {
+  height: 30px;
+  border: 1px solid #a9c4e0;
+  border-radius: 6px;
+  color: #153c61;
+  background: #fff;
+  cursor: pointer;
+}
+
 .plugin-list {
   display: grid;
   gap: 8px;

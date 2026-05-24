@@ -13,7 +13,7 @@
 
 | 插件 | 状态 | 当前判断 | 下一步 |
 |---|---|---|---|
-| `calculation-paper` | `api-ready` | 需要的 API 较少：`getAppName`、`isMacOS`、`onPluginEnter`、`onMainPush`、`copyText`、`db.allDocs/remove/put`。兼容桥已覆盖。 | 运行应用，打开插件，验证计算、保存稿纸、删除稿纸。 |
+| `calculation-paper` | `api-ready` | 需要的 API 较少：`getAppName`、`isMacOS`、`onPluginEnter`、`onMainPush`、`copyText`、`db.allDocs/remove/put`。兼容桥已覆盖，搜索 regex 触发已接入。 | 运行应用，输入 `1+2`，通过“运行匹配”打开插件，验证计算、保存稿纸、删除稿纸。 |
 | `clipboard` | `blocked` | 需要剪贴板历史：`clipboard.search`、`clipboard.getHistory`。当前只有占位。 | 先实现剪贴板历史存储。 |
 | `easy-translate` | `blocked` | 自带复杂 preload、网络请求、多个翻译服务和图片翻译。 | 等权限系统和网络配置完成后再适配。 |
 | `file-renamer` | `blocked` | 需要文件触发和文件重命名权限。 | 实现文件触发 payload、权限确认、批量文件操作 API。 |
@@ -34,9 +34,11 @@
 
 2. 在插件样本列表中找到 `计算稿纸`。
 3. 点击 `打开`。
-4. 验证：
+4. 在搜索框输入 `1+2`，点击 `运行匹配`。
+5. 点击 `计算稿纸 / 计算` 的 `运行`。
+6. 验证：
    - 插件窗口能打开。
-   - 输入 `1+2` 能显示结果。
+   - `1+2` 能作为 payload 进入插件并显示结果。
    - 保存稿纸不报错。
    - 打开“我的稿纸”能看到保存记录。
    - 删除稿纸不报错。

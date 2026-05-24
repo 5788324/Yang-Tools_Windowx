@@ -30,11 +30,15 @@ export function scanPluginSamples(): PluginSampleReport {
   }
 }
 
-export function findZtoolsPluginById(
-  id: string
-): { dir: string; manifest: RawPluginManifest; summary: PluginSummary } | null {
+export function listZtoolsPluginManifests(): Array<{
+  dir: string
+  manifest: RawPluginManifest
+  summary: PluginSummary
+}> {
   const root = join(resolveSampleRoot(), 'ztools')
-  if (!existsSync(root)) return null
+  if (!existsSync(root)) return []
+
+  const plugins: Array<{ dir: string; manifest: RawPluginManifest; summary: PluginSummary }> = []
 
   for (const name of readdirSync(root)) {
     const dir = join(root, name)
@@ -43,12 +47,21 @@ export function findZtoolsPluginById(
 
     try {
       const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as RawPluginManifest
-      const summary = toSummary(manifest, 'ztools-local')
-      if (summary.id === id || summary.name === id || name === id) {
-        return { dir, manifest, summary }
-      }
+      plugins.push({ dir, manifest, summary: toSummary(manifest, 'ztools-local') })
     } catch {
       continue
+    }
+  }
+
+  return plugins
+}
+
+export function findZtoolsPluginById(
+  id: string
+): { dir: string; manifest: RawPluginManifest; summary: PluginSummary } | null {
+  for (const plugin of listZtoolsPluginManifests()) {
+    if (plugin.summary.id === id || plugin.summary.name === id || plugin.dir.endsWith(id)) {
+      return plugin
     }
   }
 

@@ -102,8 +102,8 @@ window.ztools.getRegisteredTools()
 
 ## 下一步
 
-1. 将插件数据存储迁移到主进程。
-2. 实现文件、图片、选中文本触发 payload。
-3. 实现权限声明和安装确认。
-4. 为 `calculation-paper` 做第一个完整兼容验收。
+1. 为 `calculation-paper` 做第一个 GUI 验收。
+2. 将插件数据存储迁移到主进程。
+3. 实现文件、图片、选中文本触发 payload。
+4. 实现权限声明和安装确认。
 5. 再逐步适配剪贴板、网址精灵、截图等高复杂度样本。

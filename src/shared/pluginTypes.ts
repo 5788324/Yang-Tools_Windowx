@@ -63,6 +63,10 @@ export interface PluginSummary {
 export interface OpenPluginRequest {
   source: PluginSource
   id: string
+  code?: string
+  triggerType?: string
+  payload?: unknown
+  from?: PluginLaunchContext['from']
 }
 
 export interface OpenPluginResult {
@@ -79,6 +83,18 @@ export interface PluginLaunchContext {
   type: string
   payload: unknown
   from: 'sample-list' | 'search' | 'hotkey'
+}
+
+export interface PluginCommandMatch {
+  pluginId: string
+  pluginTitle: string
+  pluginSource: PluginSource
+  featureCode: string
+  featureExplain: string
+  triggerType: string
+  triggerLabel: string
+  payload: string
+  score: number
 }
 
 export interface PluginSampleReport {

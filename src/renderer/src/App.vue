@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { PluginSampleReport, PluginSummary } from '../../shared/pluginTypes'
+import type { PluginCommandMatch, PluginSampleReport, PluginSummary } from '../../shared/pluginTypes'
 
 interface AppInfo {
   name: string
@@ -16,6 +16,8 @@ const source = ref<'all' | 'ztools-local' | 'utools-remote'>('all')
 const loading = ref(true)
 const error = ref('')
 const openingPluginId = ref('')
+const commandMatches = ref<PluginCommandMatch[]>([])
+const matching = ref(false)
 
 const plugins = computed(() => {
   if (!report.value) return []
@@ -84,6 +86,48 @@ async function openPlugin(plugin: PluginSummary): Promise<void> {
     openingPluginId.value = ''
   }
 }
+
+async function matchQuery(): Promise<void> {
+  error.value = ''
+  const text = query.value.trim()
+  if (!text) {
+    commandMatches.value = []
+    return
+  }
+
+  matching.value = true
+  try {
+    commandMatches.value = await window.yangTools.matchPluginQuery(text)
+  } catch (currentError) {
+    error.value = currentError instanceof Error ? currentError.message : String(currentError)
+  } finally {
+    matching.value = false
+  }
+}
+
+async function runMatch(match: PluginCommandMatch): Promise<void> {
+  error.value = ''
+  openingPluginId.value = `${match.pluginSource}:${match.pluginId}`
+
+  try {
+    const result = await window.yangTools.openSamplePlugin({
+      source: match.pluginSource,
+      id: match.pluginId,
+      code: match.featureCode,
+      triggerType: match.triggerType,
+      payload: match.payload,
+      from: 'search'
+    })
+
+    if (!result.ok) {
+      error.value = result.error || '运行匹配失败'
+    }
+  } catch (currentError) {
+    error.value = currentError instanceof Error ? currentError.message : String(currentError)
+  } finally {
+    openingPluginId.value = ''
+  }
+}
 </script>
 
 <template>
@@ -135,7 +179,10 @@ async function openPlugin(plugin: PluginSummary): Promise<void> {
       </section>
 
       <section class="toolbar">
-        <input v-model="query" placeholder="搜索插件、描述或触发类型" />
+        <input v-model="query" placeholder="搜索插件，或输入 1+2 测试计算稿纸" @keyup.enter="matchQuery" />
+        <button class="run-btn" :disabled="matching || !query.trim()" @click="matchQuery">
+          {{ matching ? '匹配中' : '运行匹配' }}
+        </button>
         <div class="segmented">
           <button :class="{ selected: source === 'all' }" @click="source = 'all'">全部</button>
           <button :class="{ selected: source === 'ztools-local' }" @click="source = 'ztools-local'">ZTools</button>
@@ -144,6 +191,19 @@ async function openPlugin(plugin: PluginSummary): Promise<void> {
       </section>
 
       <p v-if="error" class="error">{{ error }}</p>
+
+      <section v-if="commandMatches.length" class="matches">
+        <article v-for="match in commandMatches" :key="`${match.pluginId}:${match.featureCode}:${match.triggerLabel}`">
+          <div>
+            <strong>{{ match.pluginTitle }}</strong>
+            <span>{{ match.triggerLabel }}</span>
+            <p>{{ match.featureExplain }}</p>
+          </div>
+          <button :disabled="openingPluginId === `${match.pluginSource}:${match.pluginId}`" @click="runMatch(match)">
+            运行
+          </button>
+        </article>
+      </section>
 
       <section class="plugin-list">
         <article v-for="plugin in plugins" :key="`${plugin.source}:${plugin.id}`" class="plugin-row">

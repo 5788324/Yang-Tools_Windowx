@@ -1,6 +1,6 @@
 # HANDOFF
 
-最后更新：2026-05-24 19:10
+最后更新：2026-05-24 19:30
 
 ## 当前状态
 
@@ -84,6 +84,17 @@
   - `shellOpenExternal`
   - `registerTool`
 - 补齐 `calculation-paper` 需要的 `copyText`。
+- 实现 ZTools 样本命令匹配器：
+  - 支持字符串关键词匹配
+  - 支持 `regex` 触发
+  - 支持 `over` 触发占位
+  - 输入 `1+2` 可匹配到 `calculation-paper` 的 `expression` feature
+- 主界面新增 `运行匹配`：
+  - 在搜索框输入命令
+  - 点击运行匹配
+  - 显示匹配到的插件 feature
+  - 点击运行后带 `code/type/payload` 打开插件
+- 修正插件窗口复用逻辑：带 payload 的搜索启动会重开插件窗口，确保新 payload 能进入 `onPluginEnter`。
 - 新增 ZTools API 使用分析脚本：
 
   ```text
@@ -183,7 +194,7 @@
    npm.cmd run lint:manifests
    ```
 
-4. 下一步建议优先让 `calculation-paper` 成为第一个完整验收插件。
+4. 下一步建议启动 `npm.cmd run dev`，在搜索框输入 `1+2`，点击 `运行匹配`，运行 `计算稿纸/计算`，做人工验收。
 5. 再实现权限声明和插件安装/卸载。
 
 ## 最近验证
@@ -209,3 +220,7 @@
   - `npm.cmd run lint:manifests` 成功
   - `npm.cmd run typecheck` 成功
   - `npm.cmd run build` 成功
+- 新增命令匹配与运行入口后再次验证：
+  - `npm.cmd run typecheck` 成功
+  - `npm.cmd run build` 成功
+  - `npm.cmd run lint:manifests` 成功

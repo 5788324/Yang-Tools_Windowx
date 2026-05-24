@@ -1,4 +1,5 @@
 import { app, ipcMain } from 'electron'
+import { matchZtoolsCommands } from './commandMatcher'
 import { scanPluginSamples } from './pluginSamples'
 import { HotkeyManager } from './hotkeyManager'
 import { registerPluginIpc } from './pluginIpc'
@@ -19,6 +20,7 @@ function registerIpc(): void {
   }))
 
   ipcMain.handle('plugins:list-samples', () => scanPluginSamples())
+  ipcMain.handle('plugins:match-query', (_event, query: string) => matchZtoolsCommands(query))
   ipcMain.handle('plugins:open-sample', (_event, request: OpenPluginRequest) =>
     windowManager.openSamplePlugin(request)
   )
