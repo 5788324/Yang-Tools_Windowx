@@ -70,6 +70,17 @@ export interface OpenPluginResult {
   error?: string
 }
 
+export interface PluginLaunchContext {
+  id: string
+  name: string
+  title: string
+  source: PluginSource
+  code: string
+  type: string
+  payload: unknown
+  from: 'sample-list' | 'search' | 'hotkey'
+}
+
 export interface PluginSampleReport {
   generatedAt: string
   ztools: {

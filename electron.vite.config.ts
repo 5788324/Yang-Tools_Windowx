@@ -15,7 +15,10 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()],
     build: {
       rollupOptions: {
-        input: resolve(__dirname, 'src/preload/index.ts')
+        input: {
+          index: resolve(__dirname, 'src/preload/index.ts'),
+          plugin: resolve(__dirname, 'src/preload/plugin.ts')
+        }
       }
     }
   },

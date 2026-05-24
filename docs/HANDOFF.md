@@ -1,12 +1,12 @@
 # HANDOFF
 
-最后更新：2026-05-24 18:35
+最后更新：2026-05-24 18:55
 
 ## 当前状态
 
 - 仓库：`5788324/Yang-Tools_Windowx`
 - 本地路径：`D:\codex\Yang Agent_Windows\Yang-Tools_Windowx`
-- 当前阶段：Electron/Vue 桌面壳雏形已创建
+- 当前阶段：Electron/Vue 桌面壳与插件兼容桥雏形已创建
 - 代码状态：可以安装依赖、类型检查、构建
 - 产品名称：`Yang Tools`
 
@@ -66,6 +66,28 @@
 - 实现最小插件窗口管理器：
   - 当前只支持打开 `local-plugin-library/ztools/*/plugin.json` 中的展开目录样本
   - uTools `.asar` 暂时显示“待适配”
+- 实现插件专用 preload：
+  - 构建产物：`out/preload/plugin.mjs`
+  - 注入 `window.yangTools`
+  - 注入 `window.ztools`
+  - 注入 `window.utools`
+  - 注入 `window.features`
+- 修正 preload 路径解析，兼容 electron-vite 输出的 `.mjs`。
+- 实现基础兼容 API：
+  - `onPluginEnter`
+  - `onMainPush` 占位
+  - `setSubInput`
+  - `subInputFocus`
+  - `db.get/set/put/remove/allDocs`
+  - `clipboard.readText/writeText`
+  - `showNotification`
+  - `shellOpenExternal`
+  - `registerTool`
+- 新增兼容 API 文档：
+
+  ```text
+  docs/PLUGIN_COMPAT_API.md
+  ```
 - 新增样本分析脚本：
 
   ```powershell
@@ -100,10 +122,9 @@
 
 ## 未完成
 
-- 尚未实现真实插件运行时。
-- 尚未实现 ZTools 兼容层。
+- 尚未实现完整插件运行时。
+- 尚未实现完整 ZTools/uTools 兼容层。
 - 尚未实现 uTools `.asar` 解包和兼容分析脚本。
-- 尚未实现插件 preload 兼容桥。
 - 尚未实现插件权限系统。
 - 尚未实现插件安装/卸载/更新。
 - 尚未复制或迁移本机 ZTools 插件为可运行插件。
@@ -116,7 +137,7 @@
 - 第三方插件版权/许可证未知，不要提交原始插件源码到公开仓库。
 - `easy-translate` 自带 preload 目录和依赖，兼容复杂度高。
 - `shortcut-capture` 涉及截图编辑器窗口、多显示器、DPI 和文件/剪贴板能力，是高风险适配样本。
-- 当前“打开 ZTools 样本”只加载入口 HTML，并没有注入 `window.ztools` 兼容 API，所以依赖 ZTools API 的插件可能无法正常运行。
+- 当前兼容桥仍是 MVP：没有加载第三方插件自己的 preload，也不开放 `fs`、`child_process`、完整 Electron API。
 - PowerShell 直接执行 `npm` 会被脚本策略拦截，请使用 `npm.cmd`。
 - npm 默认缓存目录无权限，安装依赖时使用：
 
@@ -143,10 +164,7 @@
    npm.cmd run lint:manifests
    ```
 
-4. 下一步实现插件 preload 兼容桥：
-   - `window.ztools`
-   - `window.utools`
-   - `window.yangTools`
+4. 下一步建议优先让 `calculation-paper` 成为第一个完整验收插件。
 5. 再实现权限声明和插件安装/卸载。
 
 ## 最近验证
@@ -161,6 +179,10 @@
 - `npm.cmd run build` 成功。
 - `npm.cmd run lint:manifests` 成功，生成插件样本分析。
 - 新增托盘/快捷键/插件窗口后再次验证：
+  - `npm.cmd run typecheck` 成功
+  - `npm.cmd run build` 成功
+  - `npm.cmd run lint:manifests` 成功
+- 新增插件兼容桥后再次验证：
   - `npm.cmd run typecheck` 成功
   - `npm.cmd run build` 成功
   - `npm.cmd run lint:manifests` 成功

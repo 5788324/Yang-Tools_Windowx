@@ -3,7 +3,8 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 import { findZtoolsPluginById } from './pluginSamples'
-import type { OpenPluginRequest, OpenPluginResult } from '../shared/pluginTypes'
+import { resolvePreloadPath } from './preloadPath'
+import type { OpenPluginRequest, OpenPluginResult, PluginLaunchContext } from '../shared/pluginTypes'
 
 export class WindowManager {
   private mainWindow: BrowserWindow | null = null
@@ -22,7 +23,7 @@ export class WindowManager {
       backgroundColor: '#f6f7f9',
       show: false,
       webPreferences: {
-        preload: join(__dirname, '../preload/index.js'),
+        preload: resolvePreloadPath('index'),
         contextIsolation: true,
         nodeIntegration: false,
         sandbox: false
@@ -103,7 +104,8 @@ export class WindowManager {
       backgroundColor: '#ffffff',
       show: false,
       webPreferences: {
-        preload: join(__dirname, '../preload/index.js'),
+        preload: resolvePreloadPath('plugin'),
+        additionalArguments: [`--yang-tools-plugin=${encodeLaunchContext(plugin.summary)}`],
         contextIsolation: true,
         nodeIntegration: false,
         sandbox: false,
@@ -131,4 +133,19 @@ export class WindowManager {
     }
     this.mainWindow?.close()
   }
+}
+
+function encodeLaunchContext(summary: { id: string; name: string; title: string; source: PluginLaunchContext['source'] }): string {
+  const context: PluginLaunchContext = {
+    id: summary.id,
+    name: summary.name,
+    title: summary.title,
+    source: summary.source,
+    code: 'open',
+    type: 'manual',
+    payload: '',
+    from: 'sample-list'
+  }
+
+  return Buffer.from(JSON.stringify(context), 'utf8').toString('base64url')
 }

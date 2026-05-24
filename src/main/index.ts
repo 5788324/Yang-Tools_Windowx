@@ -1,6 +1,7 @@
 import { app, ipcMain } from 'electron'
 import { scanPluginSamples } from './pluginSamples'
 import { HotkeyManager } from './hotkeyManager'
+import { registerPluginIpc } from './pluginIpc'
 import { TrayManager } from './trayManager'
 import { WindowManager } from './windowManager'
 import type { OpenPluginRequest } from '../shared/pluginTypes'
@@ -21,6 +22,7 @@ function registerIpc(): void {
   ipcMain.handle('plugins:open-sample', (_event, request: OpenPluginRequest) =>
     windowManager.openSamplePlugin(request)
   )
+  registerPluginIpc(windowManager)
 }
 
 if (!app.requestSingleInstanceLock()) {

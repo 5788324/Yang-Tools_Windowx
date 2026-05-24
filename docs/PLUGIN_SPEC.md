@@ -107,3 +107,4 @@ window.ztools
 
 兼容对象只暴露安全包装后的能力。
 
+当前兼容桥详见 [PLUGIN_COMPAT_API.md](PLUGIN_COMPAT_API.md)。
