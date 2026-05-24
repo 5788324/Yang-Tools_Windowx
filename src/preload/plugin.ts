@@ -62,6 +62,7 @@ const clipboardApi = {
 const compatibilityApi = {
   db,
   clipboard: clipboardApi,
+  copyText: (text: string) => clipboardApi.writeText(text),
   isMacOS: () => process.platform === 'darwin',
   isWindows: () => process.platform === 'win32',
   isLinux: () => process.platform === 'linux',

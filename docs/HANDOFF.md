@@ -1,6 +1,6 @@
 # HANDOFF
 
-最后更新：2026-05-24 18:55
+最后更新：2026-05-24 19:10
 
 ## 当前状态
 
@@ -83,6 +83,25 @@
   - `showNotification`
   - `shellOpenExternal`
   - `registerTool`
+- 补齐 `calculation-paper` 需要的 `copyText`。
+- 新增 ZTools API 使用分析脚本：
+
+  ```text
+  scripts/analyze-ztools-api-usage.ts
+  ```
+
+- 生成 ZTools API 使用分析：
+
+  ```text
+  docs/plugin-analysis/ztools-api-usage.md
+  docs/plugin-analysis/ztools-api-usage.json
+  ```
+
+- 新增插件兼容状态表：
+
+  ```text
+  docs/PLUGIN_COMPAT_STATUS.md
+  ```
 - 新增兼容 API 文档：
 
   ```text
@@ -186,3 +205,7 @@
   - `npm.cmd run typecheck` 成功
   - `npm.cmd run build` 成功
   - `npm.cmd run lint:manifests` 成功
+- 补齐 `copyText` 与 API 使用分析后再次验证：
+  - `npm.cmd run lint:manifests` 成功
+  - `npm.cmd run typecheck` 成功
+  - `npm.cmd run build` 成功

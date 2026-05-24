@@ -1,0 +1,116 @@
+[
+  {
+    "plugin": "calculation-paper",
+    "files": [
+      "index.html",
+      "index.js"
+    ],
+    "ztoolsApis": [
+      "copyText",
+      "db",
+      "getAppName",
+      "isMacOS",
+      "onMainPush",
+      "onPluginEnter"
+    ],
+    "dbApis": [
+      "allDocs",
+      "put",
+      "remove"
+    ],
+    "utoolsApis": []
+  },
+  {
+    "plugin": "clipboard",
+    "files": [
+      "index.html",
+      "preload.js"
+    ],
+    "ztoolsApis": [
+      "clipboard",
+      "onPluginEnter",
+      "registerTool",
+      "setSubInput",
+      "subInputFocus"
+    ],
+    "dbApis": [],
+    "utoolsApis": []
+  },
+  {
+    "plugin": "easy-translate",
+    "files": [
+      "index.html",
+      "preload\\alicloudApi.js",
+      "preload\\baiduImg.js",
+      "preload\\google\\browser\\googleT.js",
+      "preload\\google\\browser\\parser.js",
+      "preload\\index.js",
+      "preload\\mstts\\azure.js",
+      "preload\\mstts\\edge.js",
+      "preload\\mstts\\index.js",
+      "preload\\request.js",
+      "preload\\utools.js"
+    ],
+    "ztoolsApis": [
+      "http"
+    ],
+    "dbApis": [],
+    "utoolsApis": [
+      "copyImage",
+      "getPath",
+      "onPluginEnter",
+      "screenCapture",
+      "showOpenDialog",
+      "showSaveDialog"
+    ]
+  },
+  {
+    "plugin": "file-renamer",
+    "files": [
+      "index.html",
+      "preload\\services.js"
+    ],
+    "ztoolsApis": [],
+    "dbApis": [],
+    "utoolsApis": []
+  },
+  {
+    "plugin": "shortcut-capture",
+    "files": [
+      "index.html",
+      "preload.js"
+    ],
+    "ztoolsApis": [
+      "copyImage",
+      "createBrowserWindow",
+      "dbStorage",
+      "getCursorScreenPoint",
+      "getDisplayNearestPoint",
+      "getPath",
+      "hideMainWindow",
+      "outPlugin",
+      "screenCapture",
+      "sendToParent",
+      "shellShowItemInFolder",
+      "showNotification",
+      "showSaveDialog"
+    ],
+    "dbApis": [],
+    "utoolsApis": []
+  },
+  {
+    "plugin": "url-wizard",
+    "files": [
+      "index.html",
+      "preload.js"
+    ],
+    "ztoolsApis": [],
+    "dbApis": [],
+    "utoolsApis": [
+      "isLinux",
+      "isMacOS",
+      "onPluginEnter",
+      "shellOpenExternal"
+    ]
+  }
+]

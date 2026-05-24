@@ -40,6 +40,7 @@ window.ztools.isWindows()
 window.ztools.isMacOS()
 window.ztools.isLinux()
 window.ztools.getPluginInfo()
+window.ztools.copyText(text)
 ```
 
 ### 数据存储
@@ -61,6 +62,7 @@ window.ztools.db.allDocs(prefix)
 ```ts
 await window.ztools.clipboard.readText()
 await window.ztools.clipboard.writeText(text)
+window.ztools.copyText(text)
 ```
 
 以下接口已占位，但还没有真实历史数据：

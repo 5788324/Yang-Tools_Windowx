@@ -9,7 +9,7 @@
     "build": "npm run typecheck && electron-vite build",
     "preview": "electron-vite preview",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json --composite false",
-    "lint:manifests": "tsx scripts/analyze-plugin-samples.ts"
+    "lint:manifests": "tsx scripts/analyze-plugin-samples.ts && tsx scripts/analyze-ztools-api-usage.ts"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
