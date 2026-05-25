@@ -1,6 +1,6 @@
 # HANDOFF
 
-最后更新：2026-05-25 20:10
+最后更新：2026-05-25 20:30
 
 ## 当前状态
 
@@ -89,6 +89,10 @@
   - 运行：双击 `Yang Tools.exe`
   - 已复制本机 `local-plugin-library` 到 `resources/local-plugin-library`，方便测试 ZTools 样本扫描、安装、打开
   - `release/` 已加入 `.gitignore`，不会提交到 GitHub
+- 已修复用户测试计算稿纸时的 `An object could not be cloned.`：
+  - 原因：Vue 响应式对象/数组被传给 Electron IPC，结构化克隆失败
+  - 修复：传给 `isPluginTrusted`、`trustPlugin`、`openSamplePlugin` 的对象全部重新组装为纯对象
+  - 已重新生成 portable 包
 
 ## 兼容状态
 
@@ -137,6 +141,8 @@ npm.cmd run lint:manifests
 新增兼容 API 权限拦截后，`npm.cmd run typecheck` 与 `npm.cmd run lint:manifests` 已通过。
 
 生成免安装包前，`npm.cmd run build` 已通过。
+
+修复 IPC 克隆问题后，`npm.cmd run typecheck` 和 `npm.cmd run build` 已通过。
 
 ## 风险与限制
 

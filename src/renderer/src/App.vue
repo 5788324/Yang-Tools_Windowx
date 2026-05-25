@@ -104,7 +104,18 @@ function trustGrant(plugin: PluginSummary): PluginTrustGrant {
     source: plugin.source,
     id: plugin.id,
     version: plugin.version,
-    permissions: plugin.permissions
+    permissions: [...plugin.permissions]
+  }
+}
+
+function normalizeLaunchRequest(request: OpenPluginRequest): OpenPluginRequest {
+  return {
+    source: request.source,
+    id: request.id,
+    code: request.code,
+    triggerType: request.triggerType,
+    payload: request.payload,
+    from: request.from
   }
 }
 
@@ -149,7 +160,7 @@ async function confirmLaunch(): Promise<void> {
   if (rememberLaunchTrust.value) {
     await window.yangTools.trustPlugin(trustGrant(pending.plugin))
   }
-  await openPlugin(pending.request)
+  await openPlugin(normalizeLaunchRequest(pending.request))
 }
 
 async function openPlugin(request: OpenPluginRequest): Promise<void> {
@@ -157,7 +168,7 @@ async function openPlugin(request: OpenPluginRequest): Promise<void> {
   openingPluginId.value = `${request.source}:${request.id}`
 
   try {
-    const result = await window.yangTools.openSamplePlugin(request)
+    const result = await window.yangTools.openSamplePlugin(normalizeLaunchRequest(request))
 
     if (!result.ok) {
       error.value = result.error || '打开插件失败'
