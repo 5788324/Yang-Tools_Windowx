@@ -1,6 +1,6 @@
 # HANDOFF
 
-最后更新：2026-05-25 10:35
+最后更新：2026-05-25 10:55
 
 ## 当前状态
 
@@ -65,6 +65,11 @@
   - `PluginLaunchContext.permissions`
   - 插件兼容 API 暴露 `getGrantedPermissions()`
   - 插件兼容 API 暴露 `hasPermission(permission)`
+- 主界面新增插件运行前确认：
+  - 点击插件“打开”时先弹出权限确认框
+  - 点击“运行匹配”时也先弹出权限确认框
+  - 确认后才调用 `openSamplePlugin`
+  - 当前只是运行确认，还没有记住信任选择
 
 ## 兼容状态
 
@@ -100,11 +105,13 @@ npm.cmd run typecheck
 npm.cmd run lint:manifests
 ```
 
+新增运行前确认弹窗后，`npm.cmd run typecheck` 已通过。
+
 ## 风险与限制
 
 - 当前兼容桥不运行第三方插件自己的 preload，不开放 `fs`、`child_process`、完整 Electron API。
 - 插件下载市场还没有实现；当前只支持从本机 ZTools 样本安装/更新到 Yang Tools 受管理目录。
-- 权限目前只是声明和推断展示，还没有运行前确认弹窗，也没有按权限拦截 API。
+- 权限目前已用于界面展示和运行前确认，但还没有“记住本插件选择”，也没有按权限拦截 API。
 - 文本剪贴板历史是内存版，重启后清空；图片、文件历史还没有做。
 - uTools 插件多为 `.asar`，还未做只读解包和兼容分析。
 - 第三方插件源码版权未知，`local-plugin-library/` 只能本地分析，不能提交。
@@ -139,7 +146,8 @@ npm.cmd run lint:manifests
 
 5. 下一轮开发优先级：
    - GUI 人工验证安装、更新、卸载、打开插件
-   - 插件运行确认弹窗和按权限拦截 API
+   - 保存插件信任状态
+   - 按权限拦截兼容 API
    - 远程下载索引、版本比较、哈希校验
    - 自研截图/钉图 MVP
    - 自研 OCR MVP

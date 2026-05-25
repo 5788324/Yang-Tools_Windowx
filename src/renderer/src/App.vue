@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import type {
   InstalledPluginReport,
   PluginCommandMatch,
+  OpenPluginRequest,
   PluginSampleReport,
   PluginSource,
   PluginSummary
@@ -26,6 +27,7 @@ const openingPluginId = ref('')
 const managingPluginId = ref('')
 const commandMatches = ref<PluginCommandMatch[]>([])
 const matching = ref(false)
+const pendingLaunch = ref<{ plugin: PluginSummary; request: OpenPluginRequest } | null>(null)
 
 const installedIds = computed(() => new Set((installedReport.value?.plugins ?? []).map((plugin) => plugin.id)))
 
@@ -87,15 +89,48 @@ function canOpen(plugin: PluginSummary): boolean {
   return plugin.source === 'yang-tools' || plugin.source === 'ztools-local'
 }
 
-async function openPlugin(plugin: PluginSummary): Promise<void> {
+function findPlugin(sourceValue: PluginSource, id: string): PluginSummary | null {
+  return (
+    [...(installedReport.value?.plugins ?? []), ...(report.value?.ztools.plugins ?? []), ...(report.value?.utools.plugins ?? [])].find(
+      (plugin) => plugin.source === sourceValue && plugin.id === id
+    ) ?? null
+  )
+}
+
+function requestOpenPlugin(plugin: PluginSummary, request?: Partial<OpenPluginRequest>): void {
+  if (!canOpen(plugin)) {
+    error.value = '该插件来源暂未适配打开。'
+    return
+  }
+
+  pendingLaunch.value = {
+    plugin,
+    request: {
+      source: plugin.source,
+      id: plugin.id,
+      ...request
+    }
+  }
+}
+
+function cancelLaunch(): void {
+  pendingLaunch.value = null
+}
+
+async function confirmLaunch(): Promise<void> {
+  const pending = pendingLaunch.value
+  if (!pending) return
+
+  pendingLaunch.value = null
+  await openPlugin(pending.request)
+}
+
+async function openPlugin(request: OpenPluginRequest): Promise<void> {
   error.value = ''
-  openingPluginId.value = `${plugin.source}:${plugin.id}`
+  openingPluginId.value = `${request.source}:${request.id}`
 
   try {
-    const result = await window.yangTools.openSamplePlugin({
-      source: plugin.source,
-      id: plugin.id
-    })
+    const result = await window.yangTools.openSamplePlugin(request)
 
     if (!result.ok) {
       error.value = result.error || '打开插件失败'
@@ -170,26 +205,19 @@ async function matchQuery(): Promise<void> {
 
 async function runMatch(match: PluginCommandMatch): Promise<void> {
   error.value = ''
-  openingPluginId.value = `${match.pluginSource}:${match.pluginId}`
+  const plugin = findPlugin(match.pluginSource, match.pluginId)
 
-  try {
-    const result = await window.yangTools.openSamplePlugin({
-      source: match.pluginSource,
-      id: match.pluginId,
-      code: match.featureCode,
-      triggerType: match.triggerType,
-      payload: match.payload,
-      from: 'search'
-    })
-
-    if (!result.ok) {
-      error.value = result.error || '运行匹配失败'
-    }
-  } catch (currentError) {
-    error.value = currentError instanceof Error ? currentError.message : String(currentError)
-  } finally {
-    openingPluginId.value = ''
+  if (!plugin) {
+    error.value = `未找到匹配插件：${match.pluginTitle}`
+    return
   }
+
+  requestOpenPlugin(plugin, {
+    code: match.featureCode,
+    triggerType: match.triggerType,
+    payload: match.payload,
+    from: 'search'
+  })
 }
 </script>
 
@@ -295,7 +323,10 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
           <div class="plugin-meta">
             <span>{{ plugin.featureCount }} 功能</span>
             <span>{{ plugin.commandCount }} 触发</span>
-            <button :disabled="!canOpen(plugin) || openingPluginId === `${plugin.source}:${plugin.id}`" @click="openPlugin(plugin)">
+            <button
+              :disabled="!canOpen(plugin) || openingPluginId === `${plugin.source}:${plugin.id}`"
+              @click="requestOpenPlugin(plugin)"
+            >
               {{ canOpen(plugin) ? '打开' : '待适配' }}
             </button>
             <button
@@ -317,6 +348,25 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
           </div>
         </article>
       </section>
+    </section>
+
+    <section v-if="pendingLaunch" class="modal-backdrop" role="dialog" aria-modal="true">
+      <div class="permission-modal">
+        <header>
+          <h3>{{ pendingLaunch.plugin.title }}</h3>
+          <span>{{ sourceLabel(pendingLaunch.plugin) }}</span>
+        </header>
+
+        <div class="permission-list">
+          <span v-if="!pendingLaunch.plugin.permissions.length">basic-runtime</span>
+          <span v-for="permission in pendingLaunch.plugin.permissions" :key="permission">{{ permission }}</span>
+        </div>
+
+        <footer>
+          <button class="secondary-btn" @click="cancelLaunch">取消</button>
+          <button class="confirm-btn" @click="confirmLaunch">允许并打开</button>
+        </footer>
+      </div>
     </section>
   </main>
 </template>

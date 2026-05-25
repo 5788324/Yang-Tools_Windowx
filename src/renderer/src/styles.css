@@ -409,3 +409,87 @@ input {
   color: #9d1c1c;
   background: #fff1f1;
 }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(20 26 34 / 45%);
+}
+
+.permission-modal {
+  width: min(420px, 100%);
+  padding: 18px;
+  border: 1px solid #d7dee8;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 18px 60px rgb(10 18 30 / 22%);
+}
+
+.permission-modal header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+}
+
+.permission-modal h3 {
+  margin: 0;
+  overflow: hidden;
+  font-size: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.permission-modal header span {
+  flex: none;
+  padding: 3px 7px;
+  border-radius: 4px;
+  color: #4b5563;
+  background: #eef1f5;
+  font-size: 12px;
+}
+
+.permission-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 34px;
+  margin: 16px 0;
+  align-content: flex-start;
+}
+
+.permission-list span {
+  padding: 4px 7px;
+  border-radius: 4px;
+  color: #174a63;
+  background: #e6f4f7;
+  font-size: 12px;
+}
+
+.permission-modal footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.permission-modal footer button {
+  height: 32px;
+  min-width: 82px;
+  border: 1px solid #cfd7e3;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.permission-modal .secondary-btn {
+  color: #374151;
+  background: #fff;
+}
+
+.permission-modal .confirm-btn {
+  color: #fff;
+  border-color: #1d5f8f;
+  background: #256f83;
+}
