@@ -3,6 +3,7 @@ import { ClipboardHistoryManager } from './clipboardHistoryManager'
 import { matchZtoolsCommands } from './commandMatcher'
 import { installPluginFromSample, listInstalledPlugins, uninstallManagedPlugin } from './managedPlugins'
 import { scanPluginSamples } from './pluginSamples'
+import { isPluginTrusted, revokePluginTrust, trustPlugin } from './pluginTrustStore'
 import { HotkeyManager } from './hotkeyManager'
 import { registerPluginIpc } from './pluginIpc'
 import { TrayManager } from './trayManager'
@@ -26,6 +27,9 @@ function registerIpc(): void {
   ipcMain.handle('plugins:list-installed', () => listInstalledPlugins())
   ipcMain.handle('plugins:install-sample', (_event, request) => installPluginFromSample(request))
   ipcMain.handle('plugins:uninstall', (_event, id: string) => uninstallManagedPlugin(id))
+  ipcMain.handle('plugins:is-trusted', (_event, grant) => isPluginTrusted(grant))
+  ipcMain.handle('plugins:trust', (_event, grant) => trustPlugin(grant))
+  ipcMain.handle('plugins:revoke-trust', (_event, grant) => revokePluginTrust(grant))
   ipcMain.handle('plugins:match-query', (_event, query: string) => matchZtoolsCommands(query))
   ipcMain.handle('plugins:open-sample', (_event, request: OpenPluginRequest) =>
     windowManager.openSamplePlugin(request)

@@ -6,7 +6,8 @@ import type {
   OpenPluginRequest,
   PluginSampleReport,
   PluginSource,
-  PluginSummary
+  PluginSummary,
+  PluginTrustGrant
 } from '../../shared/pluginTypes'
 
 interface AppInfo {
@@ -28,6 +29,7 @@ const managingPluginId = ref('')
 const commandMatches = ref<PluginCommandMatch[]>([])
 const matching = ref(false)
 const pendingLaunch = ref<{ plugin: PluginSummary; request: OpenPluginRequest } | null>(null)
+const rememberLaunchTrust = ref(true)
 
 const installedIds = computed(() => new Set((installedReport.value?.plugins ?? []).map((plugin) => plugin.id)))
 
@@ -97,19 +99,41 @@ function findPlugin(sourceValue: PluginSource, id: string): PluginSummary | null
   )
 }
 
-function requestOpenPlugin(plugin: PluginSummary, request?: Partial<OpenPluginRequest>): void {
+function trustGrant(plugin: PluginSummary): PluginTrustGrant {
+  return {
+    source: plugin.source,
+    id: plugin.id,
+    version: plugin.version,
+    permissions: plugin.permissions
+  }
+}
+
+async function requestOpenPlugin(plugin: PluginSummary, request?: Partial<OpenPluginRequest>): Promise<void> {
   if (!canOpen(plugin)) {
     error.value = '该插件来源暂未适配打开。'
     return
   }
 
+  const launchRequest = {
+    source: plugin.source,
+    id: plugin.id,
+    ...request
+  }
+
+  try {
+    if (await window.yangTools.isPluginTrusted(trustGrant(plugin))) {
+      await openPlugin(launchRequest)
+      return
+    }
+  } catch (currentError) {
+    error.value = currentError instanceof Error ? currentError.message : String(currentError)
+    return
+  }
+
+  rememberLaunchTrust.value = true
   pendingLaunch.value = {
     plugin,
-    request: {
-      source: plugin.source,
-      id: plugin.id,
-      ...request
-    }
+    request: launchRequest
   }
 }
 
@@ -122,6 +146,9 @@ async function confirmLaunch(): Promise<void> {
   if (!pending) return
 
   pendingLaunch.value = null
+  if (rememberLaunchTrust.value) {
+    await window.yangTools.trustPlugin(trustGrant(pending.plugin))
+  }
   await openPlugin(pending.request)
 }
 
@@ -212,7 +239,7 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
     return
   }
 
-  requestOpenPlugin(plugin, {
+  void requestOpenPlugin(plugin, {
     code: match.featureCode,
     triggerType: match.triggerType,
     payload: match.payload,
@@ -361,6 +388,11 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
           <span v-if="!pendingLaunch.plugin.permissions.length">basic-runtime</span>
           <span v-for="permission in pendingLaunch.plugin.permissions" :key="permission">{{ permission }}</span>
         </div>
+
+        <label class="remember-trust">
+          <input v-model="rememberLaunchTrust" type="checkbox" />
+          <span>记住此版本和权限组合</span>
+        </label>
 
         <footer>
           <button class="secondary-btn" @click="cancelLaunch">取消</button>

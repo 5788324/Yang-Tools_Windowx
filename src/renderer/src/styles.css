@@ -469,6 +469,21 @@ input {
   font-size: 12px;
 }
 
+.remember-trust {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 16px;
+  color: #4b5563;
+  font-size: 13px;
+}
+
+.remember-trust input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+}
+
 .permission-modal footer {
   display: flex;
   justify-content: flex-end;

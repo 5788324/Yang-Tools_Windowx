@@ -129,3 +129,10 @@ export interface PluginManageResult {
   error?: string
   plugin?: PluginSummary
 }
+
+export interface PluginTrustGrant {
+  source: PluginSource
+  id: string
+  version: string
+  permissions: string[]
+}
