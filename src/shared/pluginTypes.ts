@@ -109,3 +109,20 @@ export interface PluginSampleReport {
     plugins: PluginSummary[]
   }
 }
+
+export interface InstalledPluginReport {
+  root: string
+  plugins: PluginSummary[]
+}
+
+export interface PluginInstallRequest {
+  source: PluginSource
+  id: string
+  overwrite?: boolean
+}
+
+export interface PluginManageResult {
+  ok: boolean
+  error?: string
+  plugin?: PluginSummary
+}

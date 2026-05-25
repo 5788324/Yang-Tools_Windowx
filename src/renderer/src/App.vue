@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { PluginCommandMatch, PluginSampleReport, PluginSummary } from '../../shared/pluginTypes'
+import type {
+  InstalledPluginReport,
+  PluginCommandMatch,
+  PluginSampleReport,
+  PluginSource,
+  PluginSummary
+} from '../../shared/pluginTypes'
 
 interface AppInfo {
   name: string
@@ -11,18 +17,22 @@ interface AppInfo {
 
 const appInfo = ref<AppInfo | null>(null)
 const report = ref<PluginSampleReport | null>(null)
+const installedReport = ref<InstalledPluginReport | null>(null)
 const query = ref('')
-const source = ref<'all' | 'ztools-local' | 'utools-remote'>('all')
+const source = ref<'all' | PluginSource>('all')
 const loading = ref(true)
 const error = ref('')
 const openingPluginId = ref('')
+const managingPluginId = ref('')
 const commandMatches = ref<PluginCommandMatch[]>([])
 const matching = ref(false)
 
-const plugins = computed(() => {
-  if (!report.value) return []
+const installedIds = computed(() => new Set((installedReport.value?.plugins ?? []).map((plugin) => plugin.id)))
 
-  const items = [...report.value.ztools.plugins, ...report.value.utools.plugins]
+const plugins = computed(() => {
+  const samplePlugins = [...(report.value?.ztools.plugins ?? []), ...(report.value?.utools.plugins ?? [])]
+  const installedPlugins = installedReport.value?.plugins ?? []
+  const items = [...installedPlugins, ...samplePlugins]
   const normalizedQuery = query.value.trim().toLowerCase()
 
   return items
@@ -34,37 +44,47 @@ const plugins = computed(() => {
         .toLowerCase()
         .includes(normalizedQuery)
     })
-    .slice(0, 80)
+    .slice(0, 100)
 })
 
 const stats = computed(() => {
+  const installedCount = installedReport.value?.plugins.length ?? 0
   const ztoolsCount = report.value?.ztools.plugins.length ?? 0
   const utoolsCount = report.value?.utools.plugins.length ?? 0
-  const featureCount = [...(report.value?.ztools.plugins ?? []), ...(report.value?.utools.plugins ?? [])].reduce(
-    (sum, plugin) => sum + plugin.featureCount,
-    0
-  )
+  const featureCount = plugins.value.reduce((sum, plugin) => sum + plugin.featureCount, 0)
 
-  return { ztoolsCount, utoolsCount, featureCount }
+  return { installedCount, ztoolsCount, utoolsCount, featureCount }
 })
 
-onMounted(async () => {
+onMounted(loadData)
+
+async function loadData(): Promise<void> {
+  loading.value = true
+  error.value = ''
+
   try {
-    const [info, sampleReport] = await Promise.all([
+    const [info, sampleReport, installed] = await Promise.all([
       window.yangTools.getAppInfo(),
-      window.yangTools.listPluginSamples()
+      window.yangTools.listPluginSamples(),
+      window.yangTools.listInstalledPlugins()
     ])
     appInfo.value = info
     report.value = sampleReport
+    installedReport.value = installed
   } catch (currentError) {
     error.value = currentError instanceof Error ? currentError.message : String(currentError)
   } finally {
     loading.value = false
   }
-})
+}
 
 function sourceLabel(plugin: PluginSummary): string {
-  return plugin.source === 'ztools-local' ? 'ZTools' : 'uTools'
+  if (plugin.source === 'yang-tools') return '已安装'
+  return plugin.source === 'ztools-local' ? 'ZTools 样本' : 'uTools 索引'
+}
+
+function canOpen(plugin: PluginSummary): boolean {
+  return plugin.source === 'yang-tools' || plugin.source === 'ztools-local'
 }
 
 async function openPlugin(plugin: PluginSummary): Promise<void> {
@@ -84,6 +104,49 @@ async function openPlugin(plugin: PluginSummary): Promise<void> {
     error.value = currentError instanceof Error ? currentError.message : String(currentError)
   } finally {
     openingPluginId.value = ''
+  }
+}
+
+async function installPlugin(plugin: PluginSummary, overwrite = false): Promise<void> {
+  error.value = ''
+  managingPluginId.value = `${plugin.source}:${plugin.id}`
+
+  try {
+    const result = await window.yangTools.installSamplePlugin({
+      source: plugin.source,
+      id: plugin.id,
+      overwrite
+    })
+
+    if (!result.ok) {
+      error.value = result.error || '安装插件失败'
+      return
+    }
+
+    installedReport.value = await window.yangTools.listInstalledPlugins()
+  } catch (currentError) {
+    error.value = currentError instanceof Error ? currentError.message : String(currentError)
+  } finally {
+    managingPluginId.value = ''
+  }
+}
+
+async function uninstallPlugin(plugin: PluginSummary): Promise<void> {
+  error.value = ''
+  managingPluginId.value = `${plugin.source}:${plugin.id}`
+
+  try {
+    const result = await window.yangTools.uninstallPlugin(plugin.id)
+    if (!result.ok) {
+      error.value = result.error || '卸载插件失败'
+      return
+    }
+
+    installedReport.value = await window.yangTools.listInstalledPlugins()
+  } catch (currentError) {
+    error.value = currentError instanceof Error ? currentError.message : String(currentError)
+  } finally {
+    managingPluginId.value = ''
   }
 }
 
@@ -142,7 +205,7 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
       </div>
 
       <nav class="nav">
-        <button class="nav-item active">插件样本</button>
+        <button class="nav-item active">插件管理</button>
         <button class="nav-item">运行时</button>
         <button class="nav-item">设置</button>
         <button class="nav-item">交接日志</button>
@@ -157,13 +220,19 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
     <section class="content">
       <header class="topbar">
         <div>
-          <h2>插件兼容样本库</h2>
-          <p>ZTools 与 uTools 插件索引扫描结果，后续会逐步适配运行。</p>
+          <h2>插件管理中心</h2>
+          <p>先管理本机样本和已安装插件，后续接入下载源与自动更新。</p>
         </div>
-        <div class="status" :class="{ loading }">{{ loading ? '扫描中' : '已就绪' }}</div>
+        <button class="refresh-btn" :disabled="loading" @click="loadData">
+          {{ loading ? '扫描中' : '刷新' }}
+        </button>
       </header>
 
       <section class="stats-grid">
+        <article class="stat">
+          <span>已安装</span>
+          <strong>{{ stats.installedCount }}</strong>
+        </article>
         <article class="stat">
           <span>ZTools 样本</span>
           <strong>{{ stats.ztoolsCount }}</strong>
@@ -173,7 +242,7 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
           <strong>{{ stats.utoolsCount }}</strong>
         </article>
         <article class="stat">
-          <span>功能入口</span>
+          <span>当前功能入口</span>
           <strong>{{ stats.featureCount }}</strong>
         </article>
       </section>
@@ -185,6 +254,7 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
         </button>
         <div class="segmented">
           <button :class="{ selected: source === 'all' }" @click="source = 'all'">全部</button>
+          <button :class="{ selected: source === 'yang-tools' }" @click="source = 'yang-tools'">已安装</button>
           <button :class="{ selected: source === 'ztools-local' }" @click="source = 'ztools-local'">ZTools</button>
           <button :class="{ selected: source === 'utools-remote' }" @click="source = 'utools-remote'">uTools</button>
         </div>
@@ -222,11 +292,24 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
           <div class="plugin-meta">
             <span>{{ plugin.featureCount }} 功能</span>
             <span>{{ plugin.commandCount }} 触发</span>
+            <button :disabled="!canOpen(plugin) || openingPluginId === `${plugin.source}:${plugin.id}`" @click="openPlugin(plugin)">
+              {{ canOpen(plugin) ? '打开' : '待适配' }}
+            </button>
             <button
-              :disabled="plugin.source !== 'ztools-local' || openingPluginId === `${plugin.source}:${plugin.id}`"
-              @click="openPlugin(plugin)"
+              v-if="plugin.source === 'ztools-local'"
+              class="secondary-btn"
+              :disabled="managingPluginId === `${plugin.source}:${plugin.id}`"
+              @click="installPlugin(plugin, installedIds.has(plugin.id))"
             >
-              {{ plugin.source === 'ztools-local' ? '打开' : '待适配' }}
+              {{ installedIds.has(plugin.id) ? '更新' : '安装' }}
+            </button>
+            <button
+              v-if="plugin.source === 'yang-tools'"
+              class="danger-btn"
+              :disabled="managingPluginId === `${plugin.source}:${plugin.id}`"
+              @click="uninstallPlugin(plugin)"
+            >
+              卸载
             </button>
           </div>
         </article>

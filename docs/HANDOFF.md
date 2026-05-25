@@ -1,6 +1,6 @@
 # HANDOFF
 
-最后更新：2026-05-24 20:05
+最后更新：2026-05-24 20:35
 
 ## 当前状态
 
@@ -45,6 +45,18 @@
   - 轮询系统剪贴板文本
   - 支持 `window.ztools.clipboard.search(query)`
   - 支持 `window.ztools.clipboard.getHistory(page, pageSize)`
+- 新增 Yang Tools 受管理插件目录：
+  - 目录：`{Electron app.getPath("userData")}/plugins`
+  - 文件：`src/main/managedPlugins.ts`
+  - 支持从本机 ZTools 展开目录样本安装到 Yang Tools 插件目录
+  - 支持更新覆盖已安装插件
+  - 支持卸载已安装插件
+  - 插件管理操作会限制在受管理目录内，避免路径越界
+- 主界面从“插件样本”升级为“插件管理中心”：
+  - 显示已安装、ZTools 样本、uTools 索引数量
+  - 已安装插件可打开/卸载
+  - ZTools 样本可安装/更新
+  - uTools remote 索引仍显示为待适配
 
 ## 兼容状态
 
@@ -65,9 +77,18 @@ npm.cmd run build
 npm.cmd run lint:manifests
 ```
 
+新增插件管理中心后，以下命令已在 2026-05-24 20:35 左右再次通过：
+
+```powershell
+npm.cmd run typecheck
+npm.cmd run build
+npm.cmd run lint:manifests
+```
+
 ## 风险与限制
 
 - 当前兼容桥不运行第三方插件自己的 preload，不开放 `fs`、`child_process`、完整 Electron API。
+- 插件下载市场还没有实现；当前只支持从本机 ZTools 样本安装/更新到 Yang Tools 受管理目录。
 - 文本剪贴板历史是内存版，重启后清空；图片、文件历史还没有做。
 - uTools 插件多为 `.asar`，还未做只读解包和兼容分析。
 - 第三方插件源码版权未知，`local-plugin-library/` 只能本地分析，不能提交。
@@ -101,7 +122,8 @@ npm.cmd run lint:manifests
    - 验证文本历史和搜索
 
 5. 下一轮开发优先级：
+   - GUI 人工验证安装、更新、卸载、打开插件
    - 插件权限声明和运行确认
-   - 插件安装/卸载/更新目录结构
+   - 远程下载索引、版本比较、哈希校验
    - 自研截图/钉图 MVP
    - 自研 OCR MVP

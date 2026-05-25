@@ -1,6 +1,7 @@
 import { app, ipcMain } from 'electron'
 import { ClipboardHistoryManager } from './clipboardHistoryManager'
 import { matchZtoolsCommands } from './commandMatcher'
+import { installPluginFromSample, listInstalledPlugins, uninstallManagedPlugin } from './managedPlugins'
 import { scanPluginSamples } from './pluginSamples'
 import { HotkeyManager } from './hotkeyManager'
 import { registerPluginIpc } from './pluginIpc'
@@ -22,6 +23,9 @@ function registerIpc(): void {
   }))
 
   ipcMain.handle('plugins:list-samples', () => scanPluginSamples())
+  ipcMain.handle('plugins:list-installed', () => listInstalledPlugins())
+  ipcMain.handle('plugins:install-sample', (_event, request) => installPluginFromSample(request))
+  ipcMain.handle('plugins:uninstall', (_event, id: string) => uninstallManagedPlugin(id))
   ipcMain.handle('plugins:match-query', (_event, query: string) => matchZtoolsCommands(query))
   ipcMain.handle('plugins:open-sample', (_event, request: OpenPluginRequest) =>
     windowManager.openSamplePlugin(request)

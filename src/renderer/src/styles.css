@@ -137,7 +137,7 @@ input {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   margin: 24px 0 18px;
 }
@@ -216,6 +216,22 @@ input {
   cursor: pointer;
 }
 
+.refresh-btn {
+  height: 34px;
+  min-width: 72px;
+  border: 1px solid #cfd7e3;
+  border-radius: 7px;
+  color: #153c61;
+  background: #fff;
+  cursor: pointer;
+}
+
+.refresh-btn:disabled {
+  color: #9aa3af;
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
 .run-btn:disabled {
   color: #9aa3af;
   background: #f3f4f6;
@@ -276,7 +292,7 @@ input {
 
 .plugin-row {
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) 90px;
+  grid-template-columns: 42px minmax(0, 1fr) 108px;
   gap: 12px;
   align-items: center;
   padding: 12px;
@@ -367,6 +383,18 @@ input {
   color: #9aa3af;
   background: #f3f4f6;
   cursor: not-allowed;
+}
+
+.plugin-meta .secondary-btn {
+  color: #175a36;
+  border-color: #b8d9c5;
+  background: #f5fbf7;
+}
+
+.plugin-meta .danger-btn {
+  color: #8a1f1f;
+  border-color: #e6b9b9;
+  background: #fff7f7;
 }
 
 .error {

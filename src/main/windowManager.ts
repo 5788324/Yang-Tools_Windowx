@@ -2,6 +2,7 @@ import { BrowserWindow, shell } from 'electron'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
+import { findManagedPluginById } from './managedPlugins'
 import { findZtoolsPluginById } from './pluginSamples'
 import { resolvePreloadPath } from './preloadPath'
 import type { OpenPluginRequest, OpenPluginResult, PluginLaunchContext } from '../shared/pluginTypes'
@@ -76,11 +77,11 @@ export class WindowManager {
   }
 
   async openSamplePlugin(request: OpenPluginRequest): Promise<OpenPluginResult> {
-    if (request.source !== 'ztools-local') {
-      return { ok: false, error: '当前只支持打开 ZTools 本地展开目录样本。uTools asar 包后续解包后适配。' }
+    if (request.source !== 'ztools-local' && request.source !== 'yang-tools') {
+      return { ok: false, error: '当前只支持打开 ZTools 本地展开目录样本和 Yang Tools 已安装插件。' }
     }
 
-    const plugin = findZtoolsPluginById(request.id)
+    const plugin = request.source === 'yang-tools' ? findManagedPluginById(request.id) : findZtoolsPluginById(request.id)
     if (!plugin) return { ok: false, error: `未找到插件样本: ${request.id}` }
     if (!plugin.manifest.main) return { ok: false, error: '插件缺少 main 入口' }
 

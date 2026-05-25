@@ -47,7 +47,7 @@ export function listZtoolsPluginManifests(): Array<{
 
     try {
       const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as RawPluginManifest
-      plugins.push({ dir, manifest, summary: toSummary(manifest, 'ztools-local') })
+      plugins.push({ dir, manifest, summary: toPluginSummary(manifest, 'ztools-local') })
     } catch {
       continue
     }
@@ -95,7 +95,7 @@ function scanZtoolsPlugins(root: string): PluginSummary[] {
 
       try {
         const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as RawPluginManifest
-        return toSummary(manifest, 'ztools-local')
+        return toPluginSummary(manifest, 'ztools-local')
       } catch {
         return null
       }
@@ -112,7 +112,7 @@ function scanUtoolsRemote(root: string): PluginSampleReport['utools'] {
   try {
     const remote = JSON.parse(readFileSync(remotePath, 'utf8')) as { data?: string }
     const data = remote.data ? (JSON.parse(remote.data) as { plugins?: RawPluginManifest[] }) : {}
-    const plugins = (data.plugins ?? []).map((manifest) => toSummary(manifest, 'utools-remote'))
+    const plugins = (data.plugins ?? []).map((manifest) => toPluginSummary(manifest, 'utools-remote'))
 
     return {
       root,
@@ -124,7 +124,7 @@ function scanUtoolsRemote(root: string): PluginSampleReport['utools'] {
   }
 }
 
-function toSummary(manifest: RawPluginManifest, source: PluginSummary['source']): PluginSummary {
+export function toPluginSummary(manifest: RawPluginManifest, source: PluginSummary['source']): PluginSummary {
   const features = Array.isArray(manifest.features) ? manifest.features : []
   const triggerTypes = collectTriggerTypes(features)
   const title = manifest.title || manifest.pluginName || manifest.name || '未命名插件'
