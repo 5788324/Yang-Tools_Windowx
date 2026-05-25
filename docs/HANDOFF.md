@@ -1,6 +1,6 @@
 # HANDOFF
 
-最后更新：2026-05-25 11:20
+最后更新：2026-05-25 11:45
 
 ## 当前状态
 
@@ -75,6 +75,14 @@
   - 信任指纹包含 `source/id/version/permissions`
   - 插件版本或权限变化后会重新要求确认
   - 主界面默认勾选“记住此版本和权限组合”
+- 新增兼容 API 权限拦截：
+  - `clipboard.readText/writeText/copyText` 需要 `clipboard`
+  - `clipboard.search/getHistory` 需要 `clipboard-history`
+  - `showNotification` 需要 `notification`
+  - `shellOpenExternal` 需要 `shell-open`
+  - `registerTool` 需要 `ai-tools`
+  - `db.*` 需要 `db`
+- 本地 ZTools/Yang Tools 插件摘要会扫描插件源码关键字辅助推断权限，避免只看 manifest 导致误拦截。
 
 ## 兼容状态
 
@@ -120,11 +128,13 @@ npm.cmd run build
 npm.cmd run lint:manifests
 ```
 
+新增兼容 API 权限拦截后，`npm.cmd run typecheck` 与 `npm.cmd run lint:manifests` 已通过。
+
 ## 风险与限制
 
 - 当前兼容桥不运行第三方插件自己的 preload，不开放 `fs`、`child_process`、完整 Electron API。
 - 插件下载市场还没有实现；当前只支持从本机 ZTools 样本安装/更新到 Yang Tools 受管理目录。
-- 权限目前已用于界面展示、运行前确认和信任指纹，但还没有按权限拦截 API。
+- 权限目前已用于界面展示、运行前确认、信任指纹和部分兼容 API 拦截。
 - 文本剪贴板历史是内存版，重启后清空；图片、文件历史还没有做。
 - uTools 插件多为 `.asar`，还未做只读解包和兼容分析。
 - 第三方插件源码版权未知，`local-plugin-library/` 只能本地分析，不能提交。
@@ -159,8 +169,8 @@ npm.cmd run lint:manifests
 
 5. 下一轮开发优先级：
    - GUI 人工验证安装、更新、卸载、打开插件
-   - 按权限拦截兼容 API
    - GUI 人工验证信任状态、安装、更新、卸载、打开插件
+   - 继续扩展截图、文件、网络等高风险 API 的权限模型
    - 远程下载索引、版本比较、哈希校验
    - 自研截图/钉图 MVP
    - 自研 OCR MVP

@@ -47,7 +47,7 @@ export function listZtoolsPluginManifests(): Array<{
 
     try {
       const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as RawPluginManifest
-      plugins.push({ dir, manifest, summary: toPluginSummary(manifest, 'ztools-local') })
+      plugins.push({ dir, manifest, summary: toPluginSummary(manifest, 'ztools-local', dir) })
     } catch {
       continue
     }
@@ -95,7 +95,7 @@ function scanZtoolsPlugins(root: string): PluginSummary[] {
 
       try {
         const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as RawPluginManifest
-        return toPluginSummary(manifest, 'ztools-local')
+        return toPluginSummary(manifest, 'ztools-local', pluginDir)
       } catch {
         return null
       }
@@ -124,11 +124,16 @@ function scanUtoolsRemote(root: string): PluginSampleReport['utools'] {
   }
 }
 
-export function toPluginSummary(manifest: RawPluginManifest, source: PluginSummary['source']): PluginSummary {
+export function toPluginSummary(
+  manifest: RawPluginManifest,
+  source: PluginSummary['source'],
+  pluginDir?: string
+): PluginSummary {
   const features = Array.isArray(manifest.features) ? manifest.features : []
   const triggerTypes = collectTriggerTypes(features)
   const title = manifest.title || manifest.pluginName || manifest.name || '未命名插件'
   const id = manifest.id || manifest.name || slugify(title)
+  const sourceText = pluginDir ? collectPluginSourceText(pluginDir) : ''
 
   return {
     id,
@@ -144,7 +149,7 @@ export function toPluginSummary(manifest: RawPluginManifest, source: PluginSumma
     featureCount: features.length,
     commandCount: countCommands(features),
     triggerTypes,
-    permissions: inferPermissions(manifest, triggerTypes),
+    permissions: inferPermissions(manifest, triggerTypes, sourceText),
     compatibilityNotes: inferCompatibilityNotes(manifest, triggerTypes)
   }
 }
@@ -196,7 +201,7 @@ function inferCompatibilityNotes(manifest: RawPluginManifest, triggerTypes: stri
   return notes
 }
 
-function inferPermissions(manifest: RawPluginManifest, triggerTypes: string[]): string[] {
+function inferPermissions(manifest: RawPluginManifest, triggerTypes: string[], sourceText = ''): string[] {
   const permissions = new Set<string>()
 
   for (const permission of manifest.permissions ?? []) {
@@ -210,13 +215,63 @@ function inferPermissions(manifest: RawPluginManifest, triggerTypes: string[]): 
   }
   if (triggerTypes.includes('img')) permissions.add('image-read')
 
-  const manifestText = JSON.stringify(manifest).toLowerCase()
-  if (manifestText.includes('clipboard')) permissions.add('clipboard')
-  if (manifestText.includes('screenshot') || manifestText.includes('capture')) permissions.add('screenshot')
-  if (manifestText.includes('translate') || manifestText.includes('http')) permissions.add('network')
-  if (manifestText.includes('shellopenexternal') || manifestText.includes('openexternal')) permissions.add('shell-open')
+  const searchableText = `${JSON.stringify(manifest)}\n${sourceText}`.toLowerCase()
+  if (searchableText.includes('copytext') || searchableText.includes('clipboard.read') || searchableText.includes('clipboard.write')) {
+    permissions.add('clipboard')
+  }
+  if (searchableText.includes('clipboard.search') || searchableText.includes('clipboard.gethistory')) {
+    permissions.add('clipboard-history')
+  }
+  if (searchableText.includes('shownotification') || searchableText.includes('notification')) permissions.add('notification')
+  if (searchableText.includes('registertool')) permissions.add('ai-tools')
+  if (searchableText.includes('db.') || searchableText.includes('.db') || searchableText.includes('dbstorage')) {
+    permissions.add('db')
+  }
+  if (searchableText.includes('screenshot') || searchableText.includes('capture')) permissions.add('screenshot')
+  if (searchableText.includes('translate') || searchableText.includes('fetch(') || searchableText.includes('http')) {
+    permissions.add('network')
+  }
+  if (
+    searchableText.includes('shellopenexternal') ||
+    searchableText.includes('openexternal') ||
+    searchableText.includes('shellshowiteminfolder')
+  ) {
+    permissions.add('shell-open')
+  }
 
   return Array.from(permissions).sort()
+}
+
+function collectPluginSourceText(root: string): string {
+  const chunks: string[] = []
+  collectTextFiles(root, chunks, 0)
+  return chunks.join('\n').slice(0, 300000)
+}
+
+function collectTextFiles(dir: string, chunks: string[], depth: number): void {
+  if (depth > 4 || chunks.join('').length > 300000) return
+
+  for (const name of readdirSync(dir)) {
+    if (name === 'node_modules' || name === 'dist' || name === 'build') continue
+    const path = join(dir, name)
+    const stat = statSync(path)
+
+    if (stat.isDirectory()) {
+      collectTextFiles(path, chunks, depth + 1)
+      continue
+    }
+
+    if (!stat.isFile() || stat.size > 200000 || !isTextLikeFile(name)) continue
+    try {
+      chunks.push(readFileSync(path, 'utf8'))
+    } catch {
+      // Ignore unreadable plugin sample files.
+    }
+  }
+}
+
+function isTextLikeFile(name: string): boolean {
+  return /\.(c?js|mjs|ts|tsx|vue|html|json|css|md)$/i.test(name)
 }
 
 function slugify(value: string): string {

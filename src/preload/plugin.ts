@@ -15,25 +15,30 @@ let subInputPlaceholder = ''
 
 const db = {
   get<T = unknown>(key: string): T | null {
+    if (!hasPermission('db')) return null
     const raw = localStorage.getItem(pluginStoragePrefix + key)
     return raw ? (JSON.parse(raw) as T) : null
   },
   set(key: string, value: unknown): { ok: boolean } {
+    if (!hasPermission('db')) return deniedResult('db')
     localStorage.setItem(pluginStoragePrefix + key, JSON.stringify(value))
     return { ok: true }
   },
   remove(keyOrDoc: string | { _id?: string }): { ok: boolean } {
+    if (!hasPermission('db')) return deniedResult('db')
     const key = typeof keyOrDoc === 'string' ? keyOrDoc : keyOrDoc._id
     if (!key) return { ok: false }
     localStorage.removeItem(pluginStoragePrefix + key)
     return { ok: true }
   },
   put(doc: Record<string, unknown>): { ok: boolean; id?: string } {
+    if (!hasPermission('db')) return deniedResult('db')
     const id = typeof doc._id === 'string' ? doc._id : String(Date.now())
     localStorage.setItem(pluginStoragePrefix + id, JSON.stringify({ ...doc, _id: id }))
     return { ok: true, id }
   },
   allDocs(prefix = ''): Array<Record<string, unknown>> {
+    if (!hasPermission('db')) return []
     const docs: Array<Record<string, unknown>> = []
 
     for (let index = 0; index < localStorage.length; index += 1) {
@@ -53,11 +58,20 @@ const db = {
 }
 
 const clipboardApi = {
-  readText: () => ipcRenderer.invoke('plugin:clipboard-read-text') as Promise<string>,
-  writeText: (text: string) => ipcRenderer.invoke('plugin:clipboard-write-text', text) as Promise<{ ok: boolean }>,
-  search: (query: string) => ipcRenderer.invoke('plugin:clipboard-search', query) as Promise<unknown[]>,
+  readText: () =>
+    hasPermission('clipboard') ? (ipcRenderer.invoke('plugin:clipboard-read-text') as Promise<string>) : deniedText(),
+  writeText: (text: string) =>
+    hasPermission('clipboard')
+      ? (ipcRenderer.invoke('plugin:clipboard-write-text', text) as Promise<{ ok: boolean }>)
+      : deniedAsyncResult('clipboard'),
+  search: (query: string) =>
+    hasPermission('clipboard-history')
+      ? (ipcRenderer.invoke('plugin:clipboard-search', query) as Promise<unknown[]>)
+      : deniedArray('clipboard-history'),
   getHistory: (page = 1, pageSize = 50) =>
-    ipcRenderer.invoke('plugin:clipboard-get-history', page, pageSize) as Promise<{ items: unknown[]; total: number }>
+    hasPermission('clipboard-history')
+      ? (ipcRenderer.invoke('plugin:clipboard-get-history', page, pageSize) as Promise<{ items: unknown[]; total: number }>)
+      : deniedHistory('clipboard-history')
 }
 
 const compatibilityApi = {
@@ -71,7 +85,7 @@ const compatibilityApi = {
   getAppVersion: () => '0.1.0',
   getPluginInfo: () => launchContext,
   getGrantedPermissions: () => launchContext.permissions,
-  hasPermission: (permission: string) => launchContext.permissions.includes(permission),
+  hasPermission,
   onPluginEnter(callback: PluginCallback) {
     enterCallbacks.push(callback)
     queueMicrotask(() => callback(launchContext))
@@ -92,11 +106,16 @@ const compatibilityApi = {
   hideMainWindow: () => ipcRenderer.invoke('plugin:hide-main-window') as Promise<{ ok: boolean }>,
   outPlugin: () => window.close(),
   shellOpenExternal: (url: string) =>
-    ipcRenderer.invoke('plugin:shell-open-external', url) as Promise<{ ok: boolean }>,
+    hasPermission('shell-open')
+      ? (ipcRenderer.invoke('plugin:shell-open-external', url) as Promise<{ ok: boolean }>)
+      : deniedAsyncResult('shell-open'),
   showNotification(title: string, body?: string) {
-    return ipcRenderer.invoke('plugin:notify', title, body) as Promise<{ ok: boolean }>
+    return hasPermission('notification')
+      ? (ipcRenderer.invoke('plugin:notify', title, body) as Promise<{ ok: boolean }>)
+      : deniedAsyncResult('notification')
   },
   registerTool(name: string, handler: ToolHandler) {
+    if (!hasPermission('ai-tools')) return deniedResult('ai-tools')
     toolHandlers.set(name, handler)
     return { ok: true }
   },
@@ -109,6 +128,32 @@ const compatibilityApi = {
   __emitMainPush() {
     return mainPushCallbacks.map((callback) => callback(launchContext))
   }
+}
+
+function hasPermission(permission: string): boolean {
+  return launchContext.permissions.includes(permission)
+}
+
+function deniedResult(permission: string): { ok: false; error: string } {
+  return { ok: false, error: `Permission denied: ${permission}` }
+}
+
+function deniedAsyncResult(permission: string): Promise<{ ok: false; error: string }> {
+  return Promise.resolve(deniedResult(permission))
+}
+
+function deniedText(): Promise<string> {
+  return Promise.resolve('')
+}
+
+function deniedArray(permission: string): Promise<unknown[]> {
+  console.warn(`Permission denied: ${permission}`)
+  return Promise.resolve([])
+}
+
+function deniedHistory(permission: string): Promise<{ items: unknown[]; total: number }> {
+  console.warn(`Permission denied: ${permission}`)
+  return Promise.resolve({ items: [], total: 0 })
 }
 
 contextBridge.exposeInMainWorld('yangTools', compatibilityApi)

@@ -21,7 +21,7 @@ export function listInstalledPlugins(): InstalledPluginReport {
 
     try {
       const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as RawPluginManifest
-      plugins.push(toPluginSummary(manifest, 'yang-tools'))
+      plugins.push(toPluginSummary(manifest, 'yang-tools', pluginDir))
     } catch {
       continue
     }
@@ -47,7 +47,7 @@ export function installPluginFromSample(request: PluginInstallRequest): PluginMa
     return {
       ok: false,
       error: '插件已安装，可使用更新覆盖。',
-      plugin: toPluginSummary(sample.manifest, 'yang-tools')
+      plugin: toPluginSummary(sample.manifest, 'yang-tools', sample.dir)
     }
   }
 
@@ -60,7 +60,7 @@ export function installPluginFromSample(request: PluginInstallRequest): PluginMa
 
   return {
     ok: true,
-    plugin: toPluginSummary(sample.manifest, 'yang-tools')
+    plugin: toPluginSummary(sample.manifest, 'yang-tools', sample.dir)
   }
 }
 
@@ -88,7 +88,7 @@ export function findManagedPluginById(
 
     try {
       const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as RawPluginManifest
-      const summary = toPluginSummary(manifest, 'yang-tools')
+      const summary = toPluginSummary(manifest, 'yang-tools', pluginDir)
       if (
         summary.id === id ||
         summary.name === id ||
