@@ -81,6 +81,7 @@ export interface PluginLaunchContext {
   name: string
   title: string
   source: PluginSource
+  permissions: string[]
   code: string
   type: string
   payload: unknown

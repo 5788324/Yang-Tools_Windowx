@@ -70,6 +70,8 @@ const compatibilityApi = {
   getAppName: () => 'Yang Tools',
   getAppVersion: () => '0.1.0',
   getPluginInfo: () => launchContext,
+  getGrantedPermissions: () => launchContext.permissions,
+  hasPermission: (permission: string) => launchContext.permissions.includes(permission),
   onPluginEnter(callback: PluginCallback) {
     enterCallbacks.push(callback)
     queueMicrotask(() => callback(launchContext))
@@ -140,6 +142,7 @@ function fallbackLaunchContext(): PluginLaunchContext {
     name: 'unknown',
     title: 'Unknown Plugin',
     source: 'yang-tools',
+    permissions: [],
     code: 'open',
     type: 'manual',
     payload: '',

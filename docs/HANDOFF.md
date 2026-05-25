@@ -61,6 +61,10 @@
   - manifest 中声明的 `permissions` 会进入 `PluginSummary.permissions`
   - 会根据触发类型和 manifest 文本推断 `clipboard`、`network`、`screenshot`、`file-read`、`file-write` 等基础权限
   - 主界面会显示权限标签，供后续运行确认弹窗使用
+- 插件运行上下文新增权限字段：
+  - `PluginLaunchContext.permissions`
+  - 插件兼容 API 暴露 `getGrantedPermissions()`
+  - 插件兼容 API 暴露 `hasPermission(permission)`
 
 ## 兼容状态
 

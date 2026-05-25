@@ -146,7 +146,13 @@ function hasLaunchPayload(request: OpenPluginRequest): boolean {
 }
 
 function encodeLaunchContext(
-  summary: { id: string; name: string; title: string; source: PluginLaunchContext['source'] },
+  summary: {
+    id: string
+    name: string
+    title: string
+    source: PluginLaunchContext['source']
+    permissions: string[]
+  },
   request: OpenPluginRequest
 ): string {
   const context: PluginLaunchContext = {
@@ -154,6 +160,7 @@ function encodeLaunchContext(
     name: summary.name,
     title: summary.title,
     source: summary.source,
+    permissions: summary.permissions,
     code: request.code || 'open',
     type: request.triggerType || 'manual',
     payload: request.payload ?? '',
