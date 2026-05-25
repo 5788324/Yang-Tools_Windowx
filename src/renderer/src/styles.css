@@ -362,6 +362,11 @@ input {
   font-size: 11px;
 }
 
+.tags .permission-tag {
+  color: #174a63;
+  background: #e6f4f7;
+}
+
 .plugin-meta {
   display: grid;
   gap: 4px;

@@ -285,6 +285,9 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
             </div>
             <p>{{ plugin.description || plugin.name }}</p>
             <div class="tags">
+              <span v-for="permission in plugin.permissions" :key="`permission:${permission}`" class="permission-tag">
+                {{ permission }}
+              </span>
               <span v-for="trigger in plugin.triggerTypes" :key="trigger">{{ trigger }}</span>
               <span v-for="note in plugin.compatibilityNotes" :key="note">{{ note }}</span>
             </div>

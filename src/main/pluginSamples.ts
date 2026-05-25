@@ -144,6 +144,7 @@ export function toPluginSummary(manifest: RawPluginManifest, source: PluginSumma
     featureCount: features.length,
     commandCount: countCommands(features),
     triggerTypes,
+    permissions: inferPermissions(manifest, triggerTypes),
     compatibilityNotes: inferCompatibilityNotes(manifest, triggerTypes)
   }
 }
@@ -193,6 +194,29 @@ function inferCompatibilityNotes(manifest: RawPluginManifest, triggerTypes: stri
   if (triggerTypes.includes('regex')) notes.push('needs-regex-matcher')
 
   return notes
+}
+
+function inferPermissions(manifest: RawPluginManifest, triggerTypes: string[]): string[] {
+  const permissions = new Set<string>()
+
+  for (const permission of manifest.permissions ?? []) {
+    permissions.add(String(permission))
+  }
+
+  if (manifest.tools) permissions.add('ai-tools')
+  if (triggerTypes.includes('files')) {
+    permissions.add('file-read')
+    permissions.add('file-write')
+  }
+  if (triggerTypes.includes('img')) permissions.add('image-read')
+
+  const manifestText = JSON.stringify(manifest).toLowerCase()
+  if (manifestText.includes('clipboard')) permissions.add('clipboard')
+  if (manifestText.includes('screenshot') || manifestText.includes('capture')) permissions.add('screenshot')
+  if (manifestText.includes('translate') || manifestText.includes('http')) permissions.add('network')
+  if (manifestText.includes('shellopenexternal') || manifestText.includes('openexternal')) permissions.add('shell-open')
+
+  return Array.from(permissions).sort()
 }
 
 function slugify(value: string): string {

@@ -38,6 +38,7 @@ export interface RawPluginManifest {
   logo?: string
   platform?: string[] | string
   features?: PluginFeature[]
+  permissions?: string[]
   tools?: Record<string, unknown>
   pluginSetting?: Record<string, unknown>
   [key: string]: unknown
@@ -57,6 +58,7 @@ export interface PluginSummary {
   featureCount: number
   commandCount: number
   triggerTypes: string[]
+  permissions: string[]
   compatibilityNotes: string[]
 }
 
