@@ -26,6 +26,7 @@ $appDir = Join-Path $portable 'resources\app'
 New-Item -ItemType Directory -Path $appDir -Force | Out-Null
 Copy-Item -Path (Join-Path $root 'out') -Destination (Join-Path $appDir 'out') -Recurse
 Copy-Item -Path (Join-Path $root 'package.json') -Destination (Join-Path $appDir 'package.json')
+Copy-Item -Path (Join-Path $root 'scripts') -Destination (Join-Path $appDir 'scripts') -Recurse
 
 $toolkitDir = Join-Path $appDir 'node_modules\@electron-toolkit'
 New-Item -ItemType Directory -Path $toolkitDir -Force | Out-Null
@@ -44,6 +45,7 @@ $readme = @(
   'Notes:'
   '- This is a portable test build.'
   '- local-plugin-library is copied to resources/local-plugin-library when present.'
+  '- PaddleOCR models/runtime are not bundled. Configure OCR Python path in AI Settings.'
   '- User data, trust state, and installed plugins are written to Electron userData.'
   '- Windows SmartScreen warnings are expected for this unsigned test build.'
 ) -join [Environment]::NewLine

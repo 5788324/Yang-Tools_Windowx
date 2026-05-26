@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
-export function resolvePreloadPath(name: 'index' | 'plugin'): string {
+export function resolvePreloadPath(name: 'index' | 'plugin' | 'pinnedImage' | 'screenshotSelection' | 'screenshotSuite'): string {
   const jsPath = join(__dirname, `../preload/${name}.js`)
   if (existsSync(jsPath)) return jsPath
 

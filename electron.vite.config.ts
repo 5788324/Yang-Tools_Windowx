@@ -17,7 +17,10 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'src/preload/index.ts'),
-          plugin: resolve(__dirname, 'src/preload/plugin.ts')
+          plugin: resolve(__dirname, 'src/preload/plugin.ts'),
+          pinnedImage: resolve(__dirname, 'src/preload/pinnedImage.ts'),
+          screenshotSuite: resolve(__dirname, 'src/preload/screenshotSuite.ts'),
+          screenshotSelection: resolve(__dirname, 'src/preload/screenshotSelection.ts')
         }
       }
     }

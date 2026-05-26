@@ -94,6 +94,36 @@
   - 命令：`npm.cmd run package:portable`
   - 运行前需要先执行 `npm.cmd run build`
   - 脚本保持 ASCII，兼容 Windows PowerShell 5
+- 新增截图/钉图区域选择 MVP：
+  - 文件：`src/main/screenshotPinManager.ts`
+  - 文件：`src/preload/screenshotSelection.ts`
+  - 主界面按钮：`截图钉图`
+  - 托盘菜单：`截图钉图`
+  - 全局快捷键：`Ctrl+Shift+S`
+  - 当前能力：为每个显示器打开选择层，在哪个屏幕拖拽就裁剪哪个屏幕
+  - 快捷键：Esc 取消，Enter 确认当前选区
+  - 选区完成后进入综合截图面板，可标注、OCR、翻译、复制、保存、钉图
+  - 钉图窗口操作：复制、保存 PNG、关闭
+  - 钉图窗口快捷键：Ctrl+C 复制，Ctrl+S 保存，Esc 关闭
+  - 选区时显示当前尺寸，复制/保存后显示短暂状态提示
+- 新增 OCR/翻译基础设施：
+  - `src/main/ocrService.ts`：PaddleOCR Python sidecar 适配
+  - `scripts/paddle_ocr_sidecar.py`：实际调用 PaddleOCR 的脚本
+  - `src/main/translationService.ts`：统一翻译 Provider
+  - `src/main/aiToolsSettings.ts`：本机 AI 工具配置和历史记录
+  - `src/shared/aiToolTypes.ts`：OCR、翻译、设置和历史共享类型
+  - `scripts/install-paddleocr-runtime.ps1`：创建本机 OCR Python venv 并安装 PaddleOCR
+  - Provider：LibreTranslate、DeepL、OpenAI Compatible
+  - PaddleOCR runtime 和模型不提交、不随 portable 内置；本机已安装 runtime 到 `%APPDATA%\yang-tools\ocr-runtime`
+  - Python 3.14 不支持当前 PaddlePaddle；本机已通过 winget 安装 Python 3.13 并用它重建 OCR venv
+  - sidecar 默认设置 `PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT=0`，规避 Windows CPU/oneDNN 下的 PIR 转换错误
+- 主界面新增：
+  - “截图/OCR/翻译”页：打开综合截图工具、识别图片文件、识别剪贴板图片、翻译文本/剪贴板、查看最近记录
+  - “AI 设置”页：配置 PaddleOCR Python 路径、默认翻译 Provider、目标语言、Endpoint/API Key、连接测试
+- 快捷键状态：
+  - `Alt+Space`：显示/隐藏主窗口
+  - `Ctrl+Shift+S`：截图钉图
+  - 如果快捷键注册失败，主进程会输出 warning，目前还没有设置页可修改快捷键
 - 已修复用户测试计算稿纸时的 `An object could not be cloned.`：
   - 原因：Vue 响应式对象/数组被传给 Electron IPC，结构化克隆失败
   - 修复：传给 `isPluginTrusted`、`trustPlugin`、`openSamplePlugin` 的对象全部重新组装为纯对象
@@ -149,12 +179,26 @@ npm.cmd run lint:manifests
 
 修复 IPC 克隆问题后，`npm.cmd run typecheck` 和 `npm.cmd run build` 已通过。
 
+补齐截图/钉图选区尺寸和操作状态反馈后，`npm.cmd run typecheck` 和 `npm.cmd run build` 已通过。
+
+实现截图/OCR/翻译综合工具 v1 后，以下命令已通过：
+
+```powershell
+npm.cmd run typecheck
+npm.cmd run build
+npm.cmd run package:portable
+```
+
 ## 风险与限制
 
 - 当前兼容桥不运行第三方插件自己的 preload，不开放 `fs`、`child_process`、完整 Electron API。
 - 插件下载市场还没有实现；当前只支持从本机 ZTools 样本安装/更新到 Yang Tools 受管理目录。
 - 权限目前已用于界面展示、运行前确认、信任指纹和部分兼容 API 拦截。
 - 文本剪贴板历史是内存版，重启后清空；图片、文件历史还没有做。
+- PaddleOCR runtime 当前只做检测和调用，不自动安装；缺少 Python/PaddleOCR 时会明确报错。
+- 可以用 `npm.cmd run ocr:install-runtime` 安装 OCR runtime；该命令会写入 `%APPDATA%\yang-tools\ocr-runtime`，需要网络和 Python 3.9-3.13。
+- 本机 OCR runtime 已安装成功，并用测试图片识别出 `Yang Tools OCR 123`。
+- LibreTranslate 默认指向本机 `http://localhost:5000`，如果没有自托管服务会连接失败；DeepL/OpenAI Compatible 需要 API Key。
 - uTools 插件多为 `.asar`，还未做只读解包和兼容分析。
 - 第三方插件源码版权未知，`local-plugin-library/` 只能本地分析，不能提交。
 - portable 包内包含本机复制的第三方插件样本，仅用于用户本机测试，不要上传公开仓库或公开分发。
@@ -190,7 +234,10 @@ npm.cmd run lint:manifests
 5. 下一轮开发优先级：
    - GUI 人工验证安装、更新、卸载、打开插件
    - 让用户运行 portable 包，GUI 人工验证信任状态、安装、更新、卸载、打开插件
-   - 继续扩展截图、文件、网络等高风险 API 的权限模型
+   - 人工验证截图/OCR/翻译综合面板
+   - 在 Yang Tools GUI 里验证截图面板 OCR 按钮
+   - 给 PaddleOCR runtime 补版本锁定和模型预下载缓存
+   - 继续扩展截图编辑、OCR、文件、网络等高风险 API 的权限模型
    - 远程下载索引、版本比较、哈希校验
    - 自研截图/钉图 MVP
    - 自研 OCR MVP

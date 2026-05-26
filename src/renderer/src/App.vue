@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import type { AiToolHistoryItem, AiToolsSettings, AiToolsStatus, TranslateProvider } from '../../shared/aiToolTypes'
 import type {
   InstalledPluginReport,
   PluginCommandMatch,
@@ -30,6 +31,18 @@ const commandMatches = ref<PluginCommandMatch[]>([])
 const matching = ref(false)
 const pendingLaunch = ref<{ plugin: PluginSummary; request: OpenPluginRequest } | null>(null)
 const rememberLaunchTrust = ref(true)
+const capturingScreenshot = ref(false)
+const activeView = ref<'plugins' | 'tools' | 'settings' | 'handoff'>('plugins')
+const aiSettings = ref<AiToolsSettings | null>(null)
+const ocrStatus = ref<AiToolsStatus['ocr'] | null>(null)
+const aiHistory = ref<AiToolHistoryItem[]>([])
+const ocrText = ref('')
+const translationInput = ref('')
+const translationText = ref('')
+const aiBusy = ref('')
+const aiStatusMessage = ref('')
+const selectedImageName = ref('')
+const imageFileInput = ref<HTMLInputElement | null>(null)
 
 const installedIds = computed(() => new Set((installedReport.value?.plugins ?? []).map((plugin) => plugin.id)))
 
@@ -75,11 +88,23 @@ async function loadData(): Promise<void> {
     appInfo.value = info
     report.value = sampleReport
     installedReport.value = installed
+    await loadAiTools()
   } catch (currentError) {
     error.value = currentError instanceof Error ? currentError.message : String(currentError)
   } finally {
     loading.value = false
   }
+}
+
+async function loadAiTools(): Promise<void> {
+  const [settings, status, history] = await Promise.all([
+    window.yangTools.getAiToolsSettings(),
+    window.yangTools.getOcrStatus(),
+    window.yangTools.getAiToolHistory()
+  ])
+  aiSettings.value = settings
+  ocrStatus.value = status
+  aiHistory.value = history
 }
 
 function sourceLabel(plugin: PluginSummary): string {
@@ -257,6 +282,136 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
     from: 'search'
   })
 }
+
+async function captureAndPinScreenshot(): Promise<void> {
+  error.value = ''
+  capturingScreenshot.value = true
+
+  try {
+    const result = await window.yangTools.captureAndPinScreenshot()
+    if (!result.ok) {
+      error.value = result.error || '截图钉图失败'
+    }
+  } catch (currentError) {
+    error.value = currentError instanceof Error ? currentError.message : String(currentError)
+  } finally {
+    capturingScreenshot.value = false
+  }
+}
+
+async function openCaptureSuite(): Promise<void> {
+  await captureAndPinScreenshot()
+}
+
+function chooseImageFile(): void {
+  imageFileInput.value?.click()
+}
+
+async function recognizeSelectedFile(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+
+  selectedImageName.value = file.name
+  const dataUrl = await readFileAsDataUrl(file)
+  await recognizeImage(dataUrl)
+}
+
+async function recognizeClipboardImage(): Promise<void> {
+  error.value = ''
+  aiStatusMessage.value = ''
+  aiBusy.value = 'ocr'
+
+  try {
+    const result = await window.yangTools.readClipboardImage()
+    if (!result.ok || !result.imagePngBase64) {
+      error.value = result.error || '剪贴板没有图片'
+      return
+    }
+    selectedImageName.value = '剪贴板图片'
+    await recognizeImage(result.imagePngBase64)
+  } catch (currentError) {
+    error.value = currentError instanceof Error ? currentError.message : String(currentError)
+  } finally {
+    aiBusy.value = ''
+  }
+}
+
+async function recognizeImage(imagePngBase64: string): Promise<void> {
+  error.value = ''
+  aiStatusMessage.value = 'OCR 识别中...'
+  aiBusy.value = 'ocr'
+
+  try {
+    const result = await window.yangTools.recognizeOcr({ imagePngBase64 })
+    ocrText.value = result.text
+    translationInput.value = result.text
+    aiStatusMessage.value = result.ok ? 'OCR 完成' : result.error || 'OCR 失败'
+    await loadAiTools()
+  } catch (currentError) {
+    error.value = currentError instanceof Error ? currentError.message : String(currentError)
+  } finally {
+    aiBusy.value = ''
+  }
+}
+
+async function translateCurrentText(): Promise<void> {
+  error.value = ''
+  aiStatusMessage.value = '翻译中...'
+  aiBusy.value = 'translate'
+
+  try {
+    const result = await window.yangTools.translateText({
+      text: translationInput.value || ocrText.value,
+      targetLang: aiSettings.value?.translate.targetLang
+    })
+    translationText.value = result.translatedText
+    aiStatusMessage.value = result.ok ? `翻译完成：${result.provider}` : result.error || '翻译失败'
+    await loadAiTools()
+  } catch (currentError) {
+    error.value = currentError instanceof Error ? currentError.message : String(currentError)
+  } finally {
+    aiBusy.value = ''
+  }
+}
+
+async function translateClipboardText(): Promise<void> {
+  translationInput.value = await window.yangTools.readClipboardText()
+  await translateCurrentText()
+}
+
+async function copyAiText(text: string): Promise<void> {
+  await window.yangTools.copyText(text)
+  aiStatusMessage.value = text ? '已复制文字' : '没有可复制的文字'
+}
+
+async function saveAiSettings(): Promise<void> {
+  if (!aiSettings.value) return
+  await window.yangTools.setAiToolsSettings(aiSettings.value)
+  await loadAiTools()
+  aiStatusMessage.value = 'AI 工具设置已保存'
+}
+
+async function testProvider(provider: TranslateProvider): Promise<void> {
+  aiBusy.value = `test:${provider}`
+  aiStatusMessage.value = `测试 ${provider}...`
+  try {
+    const result = await window.yangTools.testTranslateProvider(provider)
+    aiStatusMessage.value = result.ok ? `${provider} 可用` : result.error || `${provider} 不可用`
+  } finally {
+    aiBusy.value = ''
+  }
+}
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result ?? ''))
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+  })
+}
 </script>
 
 <template>
@@ -271,10 +426,10 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
       </div>
 
       <nav class="nav">
-        <button class="nav-item active">插件管理</button>
-        <button class="nav-item">运行时</button>
-        <button class="nav-item">设置</button>
-        <button class="nav-item">交接日志</button>
+        <button class="nav-item" :class="{ active: activeView === 'plugins' }" @click="activeView = 'plugins'">插件管理</button>
+        <button class="nav-item" :class="{ active: activeView === 'tools' }" @click="activeView = 'tools'">截图/OCR/翻译</button>
+        <button class="nav-item" :class="{ active: activeView === 'settings' }" @click="activeView = 'settings'">AI 设置</button>
+        <button class="nav-item" :class="{ active: activeView === 'handoff' }" @click="activeView = 'handoff'">交接日志</button>
       </nav>
 
       <div class="build">
@@ -283,7 +438,7 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
       </div>
     </aside>
 
-    <section class="content">
+    <section v-if="activeView === 'plugins'" class="content">
       <header class="topbar">
         <div>
           <h2>插件管理中心</h2>
@@ -324,6 +479,16 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
           <button :class="{ selected: source === 'ztools-local' }" @click="source = 'ztools-local'">ZTools</button>
           <button :class="{ selected: source === 'utools-remote' }" @click="source = 'utools-remote'">uTools</button>
         </div>
+      </section>
+
+      <section class="quick-tools">
+        <button
+          :disabled="capturingScreenshot"
+          title="Ctrl+Shift+S"
+          @click="captureAndPinScreenshot"
+        >
+          {{ capturingScreenshot ? '截图中' : '截图钉图' }}
+        </button>
       </section>
 
       <p v-if="error" class="error">{{ error }}</p>
@@ -385,6 +550,164 @@ async function runMatch(match: PluginCommandMatch): Promise<void> {
             </button>
           </div>
         </article>
+      </section>
+    </section>
+
+    <section v-else-if="activeView === 'tools'" class="content">
+      <header class="topbar">
+        <div>
+          <h2>截图 / OCR / 翻译</h2>
+          <p>综合截图面板负责高频操作，独立入口用于剪贴板、图片文件和文本翻译。</p>
+        </div>
+        <button class="refresh-btn" @click="loadAiTools">刷新状态</button>
+      </header>
+
+      <section class="tool-grid">
+        <article class="tool-panel">
+          <h3>综合截图工具</h3>
+          <p>选区后进入编辑面板，可标注、钉图、复制、保存、OCR、翻译。</p>
+          <button class="primary-action" :disabled="capturingScreenshot" @click="openCaptureSuite">
+            {{ capturingScreenshot ? '截图中' : '打开截图工具' }}
+          </button>
+          <span class="hint">快捷键：Ctrl+Shift+S</span>
+        </article>
+
+        <article class="tool-panel">
+          <h3>OCR 文字识别</h3>
+          <p>{{ ocrStatus?.message || '正在读取 OCR 状态' }}</p>
+          <div class="button-row">
+            <button :disabled="aiBusy === 'ocr'" @click="chooseImageFile">选择图片</button>
+            <button :disabled="aiBusy === 'ocr'" @click="recognizeClipboardImage">识别剪贴板图片</button>
+          </div>
+          <input ref="imageFileInput" type="file" accept="image/*" hidden @change="recognizeSelectedFile" />
+          <span class="hint">{{ selectedImageName || ocrStatus?.runtimePath }}</span>
+          <textarea v-model="ocrText" placeholder="OCR 结果"></textarea>
+          <div class="button-row">
+            <button @click="copyAiText(ocrText)">复制 OCR 文本</button>
+            <button :disabled="!ocrText.trim() || aiBusy === 'translate'" @click="translationInput = ocrText; translateCurrentText()">翻译 OCR 文本</button>
+          </div>
+        </article>
+
+        <article class="tool-panel">
+          <h3>翻译</h3>
+          <textarea v-model="translationInput" placeholder="输入要翻译的文本"></textarea>
+          <div class="button-row">
+            <button :disabled="aiBusy === 'translate' || !translationInput.trim()" @click="translateCurrentText">翻译文本</button>
+            <button :disabled="aiBusy === 'translate'" @click="translateClipboardText">翻译剪贴板文本</button>
+            <button @click="copyAiText(translationText)">复制译文</button>
+          </div>
+          <textarea v-model="translationText" placeholder="翻译结果"></textarea>
+        </article>
+
+        <article class="tool-panel">
+          <h3>最近记录</h3>
+          <div class="history-list">
+            <button v-for="item in aiHistory.slice(0, 8)" :key="item.id" @click="copyAiText(item.translatedText || item.text)">
+              <strong>{{ item.type === 'ocr' ? 'OCR' : item.provider }}</strong>
+              <span>{{ item.translatedText || item.text }}</span>
+            </button>
+          </div>
+        </article>
+      </section>
+
+      <p v-if="aiStatusMessage" class="status-line">{{ aiStatusMessage }}</p>
+      <p v-if="error" class="error">{{ error }}</p>
+    </section>
+
+    <section v-else-if="activeView === 'settings'" class="content">
+      <header class="topbar">
+        <div>
+          <h2>AI 工具设置</h2>
+          <p>PaddleOCR runtime 不随仓库提交；翻译 API Key 仅保存在本机 userData。</p>
+        </div>
+        <button class="refresh-btn" @click="saveAiSettings">保存</button>
+      </header>
+
+      <section v-if="aiSettings" class="settings-grid">
+        <article class="settings-panel">
+          <h3>PaddleOCR</h3>
+          <label>
+            Python 路径
+            <input v-model="aiSettings.ocr.pythonPath" placeholder="例如 C:\\Users\\YANG\\AppData\\Roaming\\Yang Tools\\ocr-runtime\\.venv\\Scripts\\python.exe" />
+          </label>
+          <p>{{ ocrStatus?.message }}</p>
+          <p class="hint">sidecar：{{ ocrStatus?.scriptPath }}</p>
+          <p class="hint">安装命令：npm.cmd run ocr:install-runtime</p>
+          <p class="hint">默认安装后复制 python-path.txt 内路径到上方输入框。</p>
+        </article>
+
+        <article class="settings-panel">
+          <h3>翻译默认值</h3>
+          <label>
+            默认 Provider
+            <select v-model="aiSettings.translate.defaultProvider">
+              <option value="libretranslate">LibreTranslate</option>
+              <option value="deepl">DeepL</option>
+              <option value="openai-compatible">OpenAI Compatible</option>
+            </select>
+          </label>
+          <label>
+            目标语言
+            <input v-model="aiSettings.translate.targetLang" placeholder="zh / en / ja" />
+          </label>
+        </article>
+
+        <article class="settings-panel">
+          <h3>LibreTranslate</h3>
+          <label>
+            Endpoint
+            <input v-model="aiSettings.translate.libretranslate.endpoint" />
+          </label>
+          <label>
+            API Key
+            <input v-model="aiSettings.translate.libretranslate.apiKey" type="password" />
+          </label>
+          <button @click="testProvider('libretranslate')">测试 LibreTranslate</button>
+        </article>
+
+        <article class="settings-panel">
+          <h3>DeepL</h3>
+          <label>
+            Endpoint
+            <input v-model="aiSettings.translate.deepl.endpoint" />
+          </label>
+          <label>
+            API Key
+            <input v-model="aiSettings.translate.deepl.apiKey" type="password" />
+          </label>
+          <button @click="testProvider('deepl')">测试 DeepL</button>
+        </article>
+
+        <article class="settings-panel">
+          <h3>OpenAI Compatible</h3>
+          <label>
+            Base URL
+            <input v-model="aiSettings.translate.openaiCompatible.baseUrl" />
+          </label>
+          <label>
+            Model
+            <input v-model="aiSettings.translate.openaiCompatible.model" />
+          </label>
+          <label>
+            API Key
+            <input v-model="aiSettings.translate.openaiCompatible.apiKey" type="password" />
+          </label>
+          <button @click="testProvider('openai-compatible')">测试 OpenAI Compatible</button>
+        </article>
+      </section>
+
+      <p v-if="aiStatusMessage" class="status-line">{{ aiStatusMessage }}</p>
+    </section>
+
+    <section v-else class="content">
+      <header class="topbar">
+        <div>
+          <h2>交接日志</h2>
+          <p>当前交接文档在 docs/HANDOFF.md，每日记录在 docs/worklogs/。</p>
+        </div>
+      </header>
+      <section class="tool-panel">
+        <p>本页先作为入口占位。后续可以直接读取 Markdown 渲染到应用内。</p>
       </section>
     </section>
 

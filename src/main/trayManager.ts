@@ -7,7 +7,10 @@ const ICON_DATA_URL =
 export class TrayManager {
   private tray: Tray | null = null
 
-  constructor(private readonly windowManager: WindowManager) {}
+  constructor(
+    private readonly windowManager: WindowManager,
+    private readonly captureScreenshot: () => void
+  ) {}
 
   create(): void {
     if (this.tray) return
@@ -30,6 +33,10 @@ export class TrayManager {
       {
         label: '隐藏主窗口',
         click: () => this.windowManager.hideMainWindow()
+      },
+      {
+        label: '截图钉图',
+        click: this.captureScreenshot
       },
       { type: 'separator' },
       {
