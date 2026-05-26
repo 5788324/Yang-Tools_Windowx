@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "electron-vite dev",
     "build": "npm run typecheck && electron-vite build",
+    "package:portable": "powershell -ExecutionPolicy Bypass -File scripts/package-portable.ps1",
     "preview": "electron-vite preview",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json --composite false",
     "lint:manifests": "tsx scripts/analyze-plugin-samples.ts && tsx scripts/analyze-ztools-api-usage.ts"

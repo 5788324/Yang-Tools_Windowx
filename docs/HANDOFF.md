@@ -89,6 +89,11 @@
   - 运行：双击 `Yang Tools.exe`
   - 已复制本机 `local-plugin-library` 到 `resources/local-plugin-library`，方便测试 ZTools 样本扫描、安装、打开
   - `release/` 已加入 `.gitignore`，不会提交到 GitHub
+- 免安装打包流程已固化：
+  - 脚本：`scripts/package-portable.ps1`
+  - 命令：`npm.cmd run package:portable`
+  - 运行前需要先执行 `npm.cmd run build`
+  - 脚本保持 ASCII，兼容 Windows PowerShell 5
 - 已修复用户测试计算稿纸时的 `An object could not be cloned.`：
   - 原因：Vue 响应式对象/数组被传给 Electron IPC，结构化克隆失败
   - 修复：传给 `isPluginTrusted`、`trustPlugin`、`openSamplePlugin` 的对象全部重新组装为纯对象
